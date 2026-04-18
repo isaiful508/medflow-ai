@@ -1,58 +1,61 @@
-"use client"
+"use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useForm, SubmitHandler } from "react-hook-form";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, Mail, Stethoscope } from "lucide-react";
 
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+  remember: boolean;
+};
+
 export default function LoginPage() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+      remember: false,
+    },
+  });
+
+  const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    console.log("Form Data:", data);
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     setIsLoading(false);
-    // navigate('/');
-  }
+    // router.push("/dashboard");
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4 relative overflow-hidden">
-      
-      {/* Animated blobs */}
-      <motion.div
-        className="absolute top-20 left-10 w-96 h-96 rounded-full blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(139,92,246,0.4) 0%, rgba(236,72,153,0.2) 50%, transparent 100%)",
-        }}
-        animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
-        transition={{ duration: 8, repeat: Infinity }}
-      />
-
-      <motion.div className="w-full max-w-md relative z-10">
-        <Card className="border-2 border-primary/20 shadow-2xl backdrop-blur-md bg-card/98">
-          
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <Card className="rounded-[8px] p-6">
           <CardHeader>
             <div className="flex flex-col items-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <Stethoscope className="w-8 h-8 text-white" />
+              <div className="w-14 h-14 rounded-[8px] bg-primary flex items-center justify-center">
+                <Stethoscope className="w-7 h-7 text-white" />
               </div>
 
               <div className="text-center">
-                <h1 className="mb-2 text-xl font-semibold">
-                  Welcome Back
-                </h1>
-                <p className="text-muted-foreground text-sm">
+                <h1 className="text-xl font-semibold">Welcome Back</h1>
+                <p className="text-sm text-muted-foreground">
                   Sign in to continue
                 </p>
               </div>
@@ -60,36 +63,46 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              
-              {/* Email */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label className="block mb-2 text-sm">Email</label>
+                <label className="block mb-1 text-sm">Email</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Mail className="absolute left-1 right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="email"
                     placeholder="john@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
+                    className="p-6 rounded-[4px]"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^\S+@\S+$/i,
+                        message: "Invalid email address",
+                      },
+                    })}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
-              {/* Password */}
               <div>
-                <label className="block mb-2 text-sm">Password</label>
+                <label className="block mb-1 text-sm">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Lock className="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    required
+                    className="p-6 rounded-[4px]"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Minimum 6 characters",
+                      },
+                    })}
                   />
                   <button
                     type="button"
@@ -97,78 +110,45 @@ export default function LoginPage() {
                     className="absolute right-3 top-1/2 -translate-y-1/2"
                   >
                     {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
+                      <EyeOff className="w-4 h-4" />
                     ) : (
-                      <Eye className="w-5 h-5" />
+                      <Eye className="w-4 h-4" />
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
-              {/* Actions */}
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" />
+                  <input type="checkbox" {...register("remember")} />
                   Remember me
                 </label>
 
-                <Link href="/forgot-password" className="text-primary">
+                <Link href="/forgot-password" className="text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
-
-              {/* Submit */}
-              <Button type="submit" className="w-full rounded-4xl" disabled={isLoading}>
+              <Button type="submit" className="w-full rounded-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
+
             </form>
 
-            {/* Footer */}
             <p className="text-center mt-6 text-sm text-muted-foreground">
               Don’t have an account?{" "}
-              <Link href="/register" className="text-primary">
+              <Link href="/register" className="text-primary hover:underline">
                 Sign up
               </Link>
             </p>
 
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
-    // <div className="flex min-h-screen items-center justify-center bg-gray-50">
-    //   <form
-    //     onSubmit={handleSubmit}
-    //     className="w-full max-w-sm space-y-4 rounded bg-white p-8 shadow-lg"
-    //   >
-    //     <h1 className="text-2xl font-bold text-center">Login</h1>
-    //     <div>
-    //       <Input
-    //         placeholder="Email"
-    //         type="email"
-    //         value={email}
-    //         onChange={(e) => setEmail(e.target.value)}
-    //         required
-    //       />
-    //     </div>
-    //     <div>
-    //       <Input
-    //         placeholder="Password"
-    //         type="password"
-    //         value={password}
-    //         onChange={(e) => setPassword(e.target.value)}
-    //         required
-    //       />
-    //     </div>
-    //     <Button type="submit" className="w-full">
-    //       Sign In
-    //     </Button>
-    //     <p className="text-center text-sm text-gray-600">
-    //       Don't have an account?{' '}
-    //       <a href="/register" className="text-primary underline">
-    //         Register
-    //       </a>
-    //     </p>
-    //   </form>
-    // </div>
   );
 }
