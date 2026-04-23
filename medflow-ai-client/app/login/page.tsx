@@ -5,8 +5,16 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Eye, EyeOff, Mail, Stethoscope } from "lucide-react";
+import {
+  getApiMessage,
+  getAuthToken,
+  getUserPayload,
+  LOGIN_ENDPOINT,
+  postJson,
+} from "@/lib/auth";
 
 type LoginFormValues = {
   email: string;
@@ -15,9 +23,12 @@ type LoginFormValues = {
 };
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const {
     register,
@@ -28,15 +39,45 @@ export default function LoginPage() {
   });
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
+    setSubmitError("");
+    setSuccessMessage("");
     setIsLoading(true);
-    console.log("Form Data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    const result = await postJson({
+      endpoint: LOGIN_ENDPOINT,
+      payload: {
+        email: data.email,
+        password: data.password,
+      },
+    });
+
+    if (!result.ok) {
+      setSubmitError(result.message);
+      setIsLoading(false);
+      return;
+    }
+
+    const token = getAuthToken(result.data);
+    const message = getApiMessage(result.data) || "Login successful.";
+    const storage = data.remember ? window.localStorage : window.sessionStorage;
+
+    storage.setItem("medflow_auth_response", JSON.stringify(result.data));
+    storage.setItem("medflow_auth_user", JSON.stringify(getUserPayload(result.data)));
+
+    if (token) {
+      storage.setItem("medflow_auth_token", token);
+    }
+
+    setSuccessMessage(message);
     setIsLoading(false);
+    router.push("/");
+    router.refresh();
   };
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setSubmitError("Google sign-in is not connected yet.");
     setGoogleLoading(false);
   };
 
@@ -140,6 +181,18 @@ export default function LoginPage() {
 
             {/* ── Form ── */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {submitError ? (
+                <div className="rounded-[8px] border border-red-400/25 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                  {submitError}
+                </div>
+              ) : null}
+
+              {successMessage ? (
+                <div className="rounded-[8px] border border-emerald-400/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+                  {successMessage}
+                </div>
+              ) : null}
+
               <div>
                 <label className="block mb-1.5 text-[11.5px] font-medium text-white/60 tracking-wide uppercase">
                   Email address
@@ -225,7 +278,7 @@ export default function LoginPage() {
             </form>
 
             <p className="text-center mt-5 text-[12.5px] text-white/40">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium hover:underline transition-colors">
                 Create one free
               </Link>

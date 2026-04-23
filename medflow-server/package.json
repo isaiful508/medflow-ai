@@ -1,5 +1,5 @@
 {
-  "name": "nestly-server",
+  "name": "medflow-ai-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -25,7 +25,6 @@
     "@types/node": "^22.19.17",
     "@typescript-eslint/eslint-plugin": "^8.59.0",
     "@typescript-eslint/parser": "^8.59.0",
-    "bcrypt": "^5.1.1",
     "eslint": "^9.39.4",
     "eslint-plugin-prettier": "^5.5.5",
     "express": "^5.2.1",
@@ -37,6 +36,7 @@
   },
   "dependencies": {
     "@types/eslint-config-prettier": "^6.11.3",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "http-status": "^2.1.0",

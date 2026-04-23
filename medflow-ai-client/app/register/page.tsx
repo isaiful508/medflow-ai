@@ -5,6 +5,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Eye,
@@ -13,8 +14,8 @@ import {
   User,
   Phone,
   Stethoscope,
-  ShieldCheck,
 } from "lucide-react";
+import { getApiMessage, REGISTER_ENDPOINT, postJson } from "@/lib/auth";
 
 type RegisterFormValues = {
   fullName: string;
@@ -23,7 +24,7 @@ type RegisterFormValues = {
   confirmPassword: string;
   mobile: string;
   role: string;
-  terms: boolean;
+  terms?: boolean;
 };
 
 function PasswordStrength({ password }: { password: string }) {
@@ -69,10 +70,13 @@ function PasswordStrength({ password }: { password: string }) {
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const {
     register,
@@ -87,15 +91,43 @@ export default function RegisterPage() {
   const termsAccepted = watch("terms");
 
   const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
+    setSubmitError("");
+    setSuccessMessage("");
     setIsLoading(true);
-    console.log("Register Data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    const result = await postJson({
+      endpoint: REGISTER_ENDPOINT,
+      payload: {
+        fullName: data.fullName,
+        name: data.fullName,
+        email: data.email,
+        password: data.password,
+        mobile: data.mobile,
+        phone: data.mobile,
+        role: data.role,
+      },
+    });
+
+    if (!result.ok) {
+      setSubmitError(result.message);
+      setIsLoading(false);
+      return;
+    }
+
+    const message =
+      getApiMessage(result.data) || "Registration successful. You can sign in now.";
+
+    setSuccessMessage(message);
     setIsLoading(false);
+    window.setTimeout(() => {
+      router.push("/login");
+    }, 1200);
   };
 
   const handleGoogleRegister = async () => {
     setGoogleLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setSubmitError("Google sign-up is not connected yet.");
     setGoogleLoading(false);
   };
 
@@ -228,6 +260,17 @@ export default function RegisterPage() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {submitError ? (
+                <div className="rounded-[8px] border border-red-400/25 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                  {submitError}
+                </div>
+              ) : null}
+
+              {successMessage ? (
+                <div className="rounded-[8px] border border-emerald-400/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+                  {successMessage}
+                </div>
+              ) : null}
 
               {/* Full name + Email row */}
               <div className="grid grid-cols-2 gap-3">
