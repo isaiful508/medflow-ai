@@ -1,83 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Eye, EyeOff, Mail, Stethoscope } from "lucide-react";
-import {
-  getApiMessage,
-  getAuthToken,
-  getUserPayload,
-  LOGIN_ENDPOINT,
-  postJson,
-} from "@/lib/auth";
-
-type LoginFormValues = {
-  email: string;
-  password: string;
-  remember: boolean;
-};
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { clearLoginState, loginUser } from "@/lib/redux/auth-slice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const { isLoading, error: submitError, success: successMessage } =
+    useAppSelector((state) => state.auth.login);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "", remember: false },
   });
 
-  const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
-    setSubmitError("");
-    setSuccessMessage("");
-    setIsLoading(true);
+  useEffect(() => {
+    dispatch(clearLoginState());
 
-    const result = await postJson({
-      endpoint: LOGIN_ENDPOINT,
-      payload: {
-        email: data.email,
-        password: data.password,
-      },
-    });
+    return () => {
+      dispatch(clearLoginState());
+    };
+  }, [dispatch]);
 
-    if (!result.ok) {
-      setSubmitError(result.message);
-      setIsLoading(false);
-      return;
+  const onSubmit = async (data: LoginFormValues) => {
+    const resultAction = await dispatch(loginUser(data));
+
+    if (loginUser.fulfilled.match(resultAction)) {
+      router.push("/");
+      router.refresh();
     }
-
-    const token = getAuthToken(result.data);
-    const message = getApiMessage(result.data) || "Login successful.";
-    const storage = data.remember ? window.localStorage : window.sessionStorage;
-
-    storage.setItem("medflow_auth_response", JSON.stringify(result.data));
-    storage.setItem("medflow_auth_user", JSON.stringify(getUserPayload(result.data)));
-
-    if (token) {
-      storage.setItem("medflow_auth_token", token);
-    }
-
-    setSuccessMessage(message);
-    setIsLoading(false);
-    router.push("/");
-    router.refresh();
   };
 
   const handleGoogleLogin = async () => {
+    dispatch(clearLoginState());
     setGoogleLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 500));
-    setSubmitError("Google sign-in is not connected yet.");
     setGoogleLoading(false);
   };
 
@@ -124,10 +97,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── Card ── */}
       <div className="relative z-10 w-full max-w-md px-4">
-
-        {/* Brand mark above card */}
         <div className="flex flex-col items-center mb-6">
           <div className="flex items-center gap-2 px-4 py-2 rounded-[8px] border border-white/[0.12] backdrop-blur-md bg-white/[0.07] mb-2">
             <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
@@ -154,15 +124,12 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="px-7 pt-6 pb-7">
-
-            {/* ── Google button ── */}
             <button
               type="button"
               onClick={handleGoogleLogin}
               disabled={googleLoading}
               className="w-full flex items-center justify-center gap-3 px-4 py-[10px] rounded-[8px] border border-white/[0.12] text-white/75 text-[13px] font-medium transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] disabled:opacity-60 mb-5 bg-white/[0.06]"
             >
-              {/* Google SVG icon */}
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -172,14 +139,12 @@ export default function LoginPage() {
               {googleLoading ? "Connecting..." : "Continue with Google"}
             </button>
 
-            {/* ── Divider ── */}
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 h-px bg-white/10" />
               <span className="text-white/30 text-[11.5px]">or sign in with email</span>
               <div className="flex-1 h-px bg-white/10" />
             </div>
 
-            {/* ── Form ── */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {submitError ? (
                 <div className="rounded-[8px] border border-red-400/25 bg-red-500/10 px-3 py-2 text-sm text-red-200">
@@ -202,10 +167,7 @@ export default function LoginPage() {
                     type="email"
                     placeholder="you@example.com"
                     className="pr-10 rounded-[8px] border-white/[0.12] bg-white/[0.07] text-white placeholder:text-white/25 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/60 h-11"
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" },
-                    })}
+                    {...register("email")}
                   />
                   <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                 </div>
@@ -221,12 +183,9 @@ export default function LoginPage() {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="********"
                     className="pr-10 rounded-[8px] border-white/[0.12] bg-white/[0.07] text-white placeholder:text-white/25 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/60 h-11"
-                    {...register("password", {
-                      required: "Password is required",
-                      minLength: { value: 6, message: "Minimum 6 characters" },
-                    })}
+                    {...register("password")}
                   />
                   <button
                     type="button"
@@ -283,7 +242,6 @@ export default function LoginPage() {
                 Create one free
               </Link>
             </p>
-
           </CardContent>
         </Card>
       </div>

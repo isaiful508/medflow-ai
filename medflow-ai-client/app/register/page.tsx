@@ -1,39 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useWatch } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Mail, Phone, Stethoscope, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Eye,
-  EyeOff,
-  Mail,
-  User,
-  Phone,
-  Stethoscope,
-} from "lucide-react";
-import { getApiMessage, REGISTER_ENDPOINT, postJson } from "@/lib/auth";
-
-type RegisterFormValues = {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  mobile: string;
-  role: string;
-  terms?: boolean;
-};
+import { Input } from "@/components/ui/input";
+import { clearRegisterState, registerUser } from "@/lib/redux/auth-slice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { registerSchema, type RegisterFormValues } from "@/lib/validations/auth";
 
 function PasswordStrength({ password }: { password: string }) {
-  const getStrength = (p: string) => {
+  const getStrength = (value: string) => {
     let score = 0;
-    if (p.length >= 8) score++;
-    if (/[A-Z]/.test(p)) score++;
-    if (/[0-9]/.test(p)) score++;
-    if (/[^A-Za-z0-9]/.test(p)) score++;
+    if (value.length >= 8) score++;
+    if (/[A-Z]/.test(value)) score++;
+    if (/[0-9]/.test(value)) score++;
+    if (/[^A-Za-z0-9]/.test(value)) score++;
     return score;
   };
 
@@ -53,11 +39,11 @@ function PasswordStrength({ password }: { password: string }) {
   return (
     <div className="mt-2">
       <div className="flex gap-1">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3].map((index) => (
           <div
-            key={i}
+            key={index}
             className={`h-[3px] flex-1 rounded-full transition-all duration-300 ${
-              i < score ? segColors[score] : "bg-white/10"
+              index < score ? segColors[score] : "bg-white/10"
             }`}
           />
         ))}
@@ -71,63 +57,65 @@ function PasswordStrength({ password }: { password: string }) {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const { isLoading, error: submitError, success: successMessage } =
+    useAppSelector((state) => state.auth.register);
 
   const {
     register,
+    control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<RegisterFormValues>({
-    defaultValues: { role: "patient" },
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      mobile: "",
+      role: "patient",
+      terms: false,
+    },
   });
 
-  const password = watch("password");
-  const termsAccepted = watch("terms");
+  const password = useWatch({ control, name: "password" }) ?? "";
+  const termsAccepted = useWatch({ control, name: "terms" }) ?? false;
+  const selectedRole = useWatch({ control, name: "role" }) ?? "patient";
 
-  const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
-    setSubmitError("");
-    setSuccessMessage("");
-    setIsLoading(true);
+  useEffect(() => {
+    dispatch(clearRegisterState());
 
-    const result = await postJson({
-      endpoint: REGISTER_ENDPOINT,
-      payload: {
+    return () => {
+      dispatch(clearRegisterState());
+    };
+  }, [dispatch]);
+
+  const onSubmit = async (data: RegisterFormValues) => {
+    const resultAction = await dispatch(
+      registerUser({
         fullName: data.fullName,
-        name: data.fullName,
         email: data.email,
         password: data.password,
         mobile: data.mobile,
-        phone: data.mobile,
         role: data.role,
-      },
-    });
+      }),
+    );
 
-    if (!result.ok) {
-      setSubmitError(result.message);
-      setIsLoading(false);
-      return;
+    if (registerUser.fulfilled.match(resultAction)) {
+      window.setTimeout(() => {
+        router.push("/login");
+      }, 1200);
     }
-
-    const message =
-      getApiMessage(result.data) || "Registration successful. You can sign in now.";
-
-    setSuccessMessage(message);
-    setIsLoading(false);
-    window.setTimeout(() => {
-      router.push("/login");
-    }, 1200);
   };
 
   const handleGoogleRegister = async () => {
+    dispatch(clearRegisterState());
     setGoogleLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 500));
-    setSubmitError("Google sign-up is not connected yet.");
     setGoogleLoading(false);
   };
 
@@ -135,13 +123,10 @@ export default function RegisterPage() {
     { value: "patient", label: "Patient", icon: "👤" },
     { value: "doctor", label: "Doctor", icon: "🩺" },
     { value: "admin", label: "Admin", icon: "🛡️" },
-  ];
-
-  const selectedRole = watch("role");
+  ] as const;
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-8">
-      
       <div className="absolute inset-0 bg-[#060d1f]" />
       <div
         className="absolute inset-0"
@@ -177,7 +162,6 @@ export default function RegisterPage() {
         style={{ background: "#8B5CF6" }}
       />
 
-      {/* ── Floating badges ── */}
       <div
         className="absolute top-[14%] left-6 hidden lg:flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs backdrop-blur-md border border-white/10 z-10"
         style={{ background: "rgba(255,255,255,0.07)" }}
@@ -199,10 +183,7 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* ── Main card ── */}
       <div className="relative z-10 w-full max-w-md px-4">
-
-        {/* Brand mark */}
         <div className="flex flex-col items-center mb-6">
           <div
             className="flex items-center gap-2 px-4 py-2 rounded-[8px] border border-white/12 backdrop-blur-md mb-2"
@@ -234,8 +215,6 @@ export default function RegisterPage() {
           </CardHeader>
 
           <CardContent className="px-7 pt-5 pb-7">
-
-            {/* Google button */}
             <button
               type="button"
               onClick={handleGoogleRegister}
@@ -252,7 +231,6 @@ export default function RegisterPage() {
               {googleLoading ? "Connecting..." : "Sign up with Google"}
             </button>
 
-            {/* Divider */}
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 h-px bg-white/10" />
               <span className="text-white/30 text-[11.5px]">or register with email</span>
@@ -272,7 +250,6 @@ export default function RegisterPage() {
                 </div>
               ) : null}
 
-              {/* Full name + Email row */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
@@ -284,7 +261,7 @@ export default function RegisterPage() {
                       placeholder="Saiful Islam"
                       className="pr-9 rounded-[8px] border-white/12 text-white placeholder:text-white/25 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/60 h-10 text-[13px]"
                       style={{ background: "rgba(255,255,255,0.07)" }}
-                      {...register("fullName", { required: "Required" })}
+                      {...register("fullName")}
                     />
                     <User className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
                   </div>
@@ -303,9 +280,7 @@ export default function RegisterPage() {
                       placeholder="01XXXXXXXXX"
                       className="pr-9 rounded-[8px] border-white/12 text-white placeholder:text-white/25 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/60 h-10 text-[13px]"
                       style={{ background: "rgba(255,255,255,0.07)" }}
-                      {...register("mobile", {
-                        minLength: { value: 10, message: "Invalid number" },
-                      })}
+                      {...register("mobile")}
                     />
                     <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
                   </div>
@@ -315,7 +290,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
                   Email address
@@ -326,10 +300,7 @@ export default function RegisterPage() {
                     placeholder="you@example.com"
                     className="pr-9 rounded-[8px] border-white/12 text-white placeholder:text-white/25 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/60 h-10 text-[13px]"
                     style={{ background: "rgba(255,255,255,0.07)" }}
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: { value: /^\S+@\S+$/i, message: "Invalid email" },
-                    })}
+                    {...register("email")}
                   />
                   <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
                 </div>
@@ -338,7 +309,6 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              {/* Password + Confirm row */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
@@ -347,13 +317,10 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="********"
                       className="pr-9 rounded-[8px] border-white/12 text-white placeholder:text-white/25 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/60 h-10 text-[13px]"
                       style={{ background: "rgba(255,255,255,0.07)" }}
-                      {...register("password", {
-                        required: "Required",
-                        minLength: { value: 6, message: "Min 6 characters" },
-                      })}
+                      {...register("password")}
                     />
                     <button
                       type="button"
@@ -376,13 +343,10 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Input
                       type={showConfirmPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="********"
                       className="pr-9 rounded-[8px] border-white/12 text-white placeholder:text-white/25 focus-visible:ring-blue-500/30 focus-visible:border-blue-500/60 h-10 text-[13px]"
                       style={{ background: "rgba(255,255,255,0.07)" }}
-                      {...register("confirmPassword", {
-                        required: "Required",
-                        validate: (v) => v === password || "Passwords don't match",
-                      })}
+                      {...register("confirmPassword")}
                     />
                     <button
                       type="button"
@@ -398,38 +362,36 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Role selector — styled cards */}
               <div>
                 <label className="block mb-2 text-[11px] font-medium text-white/60 tracking-wide uppercase">
                   I am a
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {roles.map((r) => (
+                  {roles.map((role) => (
                     <label
-                      key={r.value}
+                      key={role.value}
                       className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-[8px] border cursor-pointer transition-all text-center ${
-                        selectedRole === r.value
+                        selectedRole === role.value
                           ? "border-blue-500/70 bg-blue-500/15 text-white"
                           : "border-white/10 bg-white/5 text-white/45 hover:border-white/20 hover:text-white/70"
                       }`}
                     >
                       <input
                         type="radio"
-                        value={r.value}
+                        value={role.value}
                         className="sr-only"
-                        {...register("role", { required: true })}
+                        {...register("role")}
                       />
-                      <span className="text-lg leading-none">{r.icon}</span>
-                      <span className="text-[12px] font-medium">{r.label}</span>
+                      <span className="text-lg leading-none">{role.icon}</span>
+                      <span className="text-[12px] font-medium">{role.label}</span>
                     </label>
                   ))}
                 </div>
                 {errors.role && (
-                  <p className="text-[11px] text-red-400 mt-1">Role is required</p>
+                  <p className="text-[11px] text-red-400 mt-1">{errors.role.message}</p>
                 )}
               </div>
 
-              {/* Terms */}
               <div
                 className="flex items-start gap-2.5 p-3 rounded-[8px] border border-white/8"
                 style={{ background: "rgba(255,255,255,0.04)" }}
@@ -437,7 +399,7 @@ export default function RegisterPage() {
                 <input
                   type="checkbox"
                   className="mt-0.5 accent-blue-500 cursor-pointer flex-shrink-0"
-                  {...register("terms", { required: "You must accept terms" })}
+                  {...register("terms")}
                 />
                 <label className="text-[12px] text-white/50 leading-relaxed cursor-pointer">
                   I agree to the{" "}
@@ -455,7 +417,6 @@ export default function RegisterPage() {
                 <p className="text-[11px] text-red-400 -mt-2">{errors.terms.message}</p>
               )}
 
-              {/* Submit */}
               <Button
                 type="submit"
                 disabled={isLoading || !termsAccepted}
