@@ -1,11 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
+import API from "@/lib/api";
 import {
   getApiMessage,
   getAuthToken,
   getUserPayload,
-  LOGIN_ENDPOINT,
-  postJson,
-  REGISTER_ENDPOINT,
 } from "@/lib/auth";
 
 type LoginPayload = {
@@ -53,35 +52,32 @@ export const loginUser = createAsyncThunk<
   LoginPayload,
   { rejectValue: string }
 >("auth/loginUser", async (credentials, { rejectWithValue }) => {
-  const result = await postJson({
-    endpoint: LOGIN_ENDPOINT,
-    payload: {
+  try {
+    const response = await API.post("/auth/login", {
       email: credentials.email,
       password: credentials.password,
-    },
-  });
+    });
+    const data = response.data;
+    const token = getAuthToken(data);
+    const user = getUserPayload(data);
+    const message = getApiMessage(data) || "Login successful.";
 
-  if (!result.ok) {
-    return rejectWithValue(result.message);
+    persistLogin({
+      remember: credentials.remember,
+      token,
+      user,
+      payload: data,
+    });
+
+    return {
+      message,
+      token,
+      user,
+      payload: data,
+    };
+  } catch (error) {
+    return rejectWithValue(getRequestErrorMessage(error));
   }
-
-  const token = getAuthToken(result.data);
-  const user = getUserPayload(result.data);
-  const message = getApiMessage(result.data) || "Login successful.";
-
-  persistLogin({
-    remember: credentials.remember,
-    token,
-    user,
-    payload: result.data,
-  });
-
-  return {
-    message,
-    token,
-    user,
-    payload: result.data,
-  };
 });
 
 export const registerUser = createAsyncThunk<
@@ -89,9 +85,8 @@ export const registerUser = createAsyncThunk<
   RegisterPayload,
   { rejectValue: string }
 >("auth/registerUser", async (formData, { rejectWithValue }) => {
-  const result = await postJson({
-    endpoint: REGISTER_ENDPOINT,
-    payload: {
+  try {
+    const response = await API.post("/auth/register", {
       fullName: formData.fullName,
       name: formData.fullName,
       email: formData.email,
@@ -99,18 +94,17 @@ export const registerUser = createAsyncThunk<
       mobile: formData.mobile,
       phone: formData.mobile,
       role: formData.role,
-    },
-  });
+    });
+    const data = response.data;
 
-  if (!result.ok) {
-    return rejectWithValue(result.message);
+    return {
+      message:
+        getApiMessage(data) || "Registration successful. You can sign in now.",
+      payload: data,
+    };
+  } catch (error) {
+    return rejectWithValue(getRequestErrorMessage(error));
   }
-
-  return {
-    message:
-      getApiMessage(result.data) || "Registration successful. You can sign in now.",
-    payload: result.data,
-  };
 });
 
 const authSlice = createSlice({
@@ -224,4 +218,16 @@ function clearPersistedLogin() {
     storage.removeItem("medflow_auth_user");
     storage.removeItem("medflow_auth_token");
   }
+}
+
+function getRequestErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    return (
+      getApiMessage(error.response?.data) ||
+      error.message ||
+      "Could not reach the auth server. Make sure your backend is running on localhost:5000."
+    );
+  }
+
+  return "Something went wrong while contacting the auth server.";
 }
