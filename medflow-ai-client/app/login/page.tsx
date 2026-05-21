@@ -119,7 +119,7 @@ export default function LoginPage() {
           <CardHeader className="pb-0 pt-7 px-7">
             <div className="flex flex-col items-center gap-1 text-center">
               <h1 className="text-xl font-semibold text-white">Welcome back</h1>
-              <p className="text-sm text-white/45">Sign in to your MediConnect account</p>
+              <p className="text-sm text-white/45">Sign in to your MedflowAI account</p>
             </div>
           </CardHeader>
 

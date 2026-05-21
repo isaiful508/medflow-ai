@@ -184,8 +184,8 @@ export const notifications = [
 export const aiStarterMessages: MessageItem[] = [
   {
     role: "ai" as const,
-    text: "Hello! I'm your MediAI health assistant. I can help assess your symptoms, provide health info, and connect you with the right specialist. How are you feeling today?",
-    meta: "MediAI · 10:30 AM",
+    text: "Hello! I'm your MedflowAI health assistant. I can help assess your symptoms, provide health info, and connect you with the right specialist. How are you feeling today?",
+    meta: "MedflowAI · 10:30 AM",
   },
   {
     role: "user" as const,
@@ -195,7 +195,7 @@ export const aiStarterMessages: MessageItem[] = [
   {
     role: "ai" as const,
     text: "I understand. Let me ask a few questions to better assess your situation.\n\n1. Headache location: forehead, temples, back of head, or all-over?\n2. Pain level: on a scale of 1–10, how intense?\n3. Other symptoms: nausea, light sensitivity, neck stiffness, or fever?",
-    meta: "MediAI · 10:32 AM",
+    meta: "MedflowAI · 10:32 AM",
   },
   {
     role: "user" as const,
@@ -205,7 +205,7 @@ export const aiStarterMessages: MessageItem[] = [
   {
     role: "ai" as const,
     text: "Based on your symptoms this is consistent with a tension headache or possibly migraine without aura. Rest in a quiet room, stay hydrated, and consider OTC pain relief if appropriate. Would you like me to connect you with a neurologist?",
-    meta: "MediAI · 10:35 AM",
+    meta: "MedflowAI · 10:35 AM",
   },
 ];
 
@@ -234,7 +234,7 @@ export const chatConversations = [
   },
   {
     id: 1,
-    name: "MediAI Assistant",
+    name: "MedflowAI Assistant",
     initials: "AI",
     preview: "Symptom check complete",
     unread: 0,

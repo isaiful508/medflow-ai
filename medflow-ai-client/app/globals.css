@@ -207,110 +207,110 @@
   }
 }
 
-.mediconnect-shell {
+.medflow-ai-shell {
   background: var(--mc-bg);
   color: var(--mc-fg);
 }
 
-.mediconnect-orbs {
+.medflow-ai-orbs {
   background: var(--mc-orbs);
 }
 
-.mediconnect-grid {
+.medflow-ai-grid {
   background-image:
     linear-gradient(var(--mc-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--mc-grid) 1px, transparent 1px);
 }
 
-.mediconnect-sidebar {
+.medflow-ai-sidebar {
   background: var(--mc-sidebar-bg);
   border-color: var(--mc-border);
 }
 
-.mediconnect-topbar {
+.medflow-ai-topbar {
   background: var(--mc-topbar-bg);
   border-color: var(--mc-border);
 }
 
-.mediconnect-card {
+.medflow-ai-card {
   background: var(--mc-card);
   border-color: var(--mc-border);
 }
 
-.mediconnect-input,
-.mediconnect-toggle {
+.medflow-ai-input,
+.medflow-ai-toggle {
   background: var(--mc-soft);
   border-color: var(--mc-border);
 }
 
-.mediconnect-notif-ring {
+.medflow-ai-notif-ring {
   border-color: var(--mc-topbar-bg);
 }
 
-.mediconnect-shell .border-white\/10,
-.mediconnect-shell .border-white\/8,
-.mediconnect-shell .border-white\/6,
-.mediconnect-shell .border-white\/5 {
+.medflow-ai-shell .border-white\/10,
+.medflow-ai-shell .border-white\/8,
+.medflow-ai-shell .border-white\/6,
+.medflow-ai-shell .border-white\/5 {
   border-color: var(--mc-border);
 }
 
-.mediconnect-shell .bg-white\/3,
-.mediconnect-shell .bg-white\/4,
-.mediconnect-shell .bg-white\/5,
-.mediconnect-shell .bg-white\/6,
-.mediconnect-shell .bg-white\/8,
-.mediconnect-shell .bg-white\/10 {
+.medflow-ai-shell .bg-white\/3,
+.medflow-ai-shell .bg-white\/4,
+.medflow-ai-shell .bg-white\/5,
+.medflow-ai-shell .bg-white\/6,
+.medflow-ai-shell .bg-white\/8,
+.medflow-ai-shell .bg-white\/10 {
   background-color: var(--mc-soft);
 }
 
-.mediconnect-shell .text-white {
+.medflow-ai-shell .text-white {
   color: var(--mc-fg);
 }
 
-.mediconnect-shell .text-white\/80 {
+.medflow-ai-shell .text-white\/80 {
   color: var(--mc-text-80);
 }
 
-.mediconnect-shell .text-white\/70 {
+.medflow-ai-shell .text-white\/70 {
   color: var(--mc-text-70);
 }
 
-.mediconnect-shell .text-white\/65 {
+.medflow-ai-shell .text-white\/65 {
   color: var(--mc-text-65);
 }
 
-.mediconnect-shell .text-white\/60 {
+.medflow-ai-shell .text-white\/60 {
   color: var(--mc-text-60);
 }
 
-.mediconnect-shell .text-white\/55 {
+.medflow-ai-shell .text-white\/55 {
   color: var(--mc-text-55);
 }
 
-.mediconnect-shell .text-white\/50 {
+.medflow-ai-shell .text-white\/50 {
   color: var(--mc-text-50);
 }
 
-.mediconnect-shell .text-white\/45 {
+.medflow-ai-shell .text-white\/45 {
   color: var(--mc-text-45);
 }
 
-.mediconnect-shell .text-white\/40 {
+.medflow-ai-shell .text-white\/40 {
   color: var(--mc-text-40);
 }
 
-.mediconnect-shell .text-white\/35 {
+.medflow-ai-shell .text-white\/35 {
   color: var(--mc-text-35);
 }
 
-.mediconnect-shell .text-white\/30 {
+.medflow-ai-shell .text-white\/30 {
   color: var(--mc-text-30);
 }
 
-.mediconnect-shell .text-white\/25 {
+.medflow-ai-shell .text-white\/25 {
   color: var(--mc-text-25);
 }
 
-.mediconnect-shell .text-white\/20 {
+.medflow-ai-shell .text-white\/20 {
   color: var(--mc-text-20);
 }

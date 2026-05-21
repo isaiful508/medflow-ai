@@ -4,7 +4,7 @@ import { Providers } from "@/app/providers";
 
 
 export const metadata: Metadata = {
-  title: "MediConnect",
+  title: "MedflowAI",
   description: "Telemedicine platform dashboard built with Next.js 16.",
 };
 
@@ -21,7 +21,7 @@ export default function RootLayout({
             __html: `
               (function () {
                 try {
-                  var stored = localStorage.getItem("mediconnect-theme");
+                  var stored = localStorage.getItem("medflow-ai-theme");
                   var theme = stored === "light" || stored === "dark"
                     ? stored
                     : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
