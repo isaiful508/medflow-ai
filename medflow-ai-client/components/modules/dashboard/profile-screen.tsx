@@ -8,7 +8,7 @@ import {
   ProfileField,
   VitalIcon,
   toneClass,
-} from "./ui-helpers";
+} from "@/components/shared/ui-helpers";
 
 export function ProfileScreen({
   profileTab,

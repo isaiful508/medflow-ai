@@ -1,7 +1,7 @@
 "use client";
 
 import { type PatientItem } from "@/lib/medflow-ai-data";
-import { CardHeader, GlassCard } from "./ui-helpers";
+import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
 
 export function AnalyticsScreen({
   patients,

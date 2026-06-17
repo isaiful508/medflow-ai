@@ -6,7 +6,7 @@ import {
   daysWithSlots,
   type DoctorItem,
 } from "@/lib/medflow-ai-data";
-import { Avatar, CardHeader, CheckMini, GlassCard } from "./ui-helpers";
+import { Avatar, CardHeader, CheckMini, GlassCard } from "@/components/shared/ui-helpers";
 
 export function AppointmentsScreen({
   doctorsList,

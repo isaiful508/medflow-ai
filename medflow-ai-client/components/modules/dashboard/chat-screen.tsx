@@ -2,7 +2,7 @@
 
 import { FileText, MoreVertical, Phone, Send, Video } from "lucide-react";
 import { chatConversations, chatMessages } from "@/lib/medflow-ai-data";
-import { Avatar, GlassCard } from "./ui-helpers";
+import { Avatar, GlassCard } from "@/components/shared/ui-helpers";
 
 export function ChatScreen({
   selectedConversation,

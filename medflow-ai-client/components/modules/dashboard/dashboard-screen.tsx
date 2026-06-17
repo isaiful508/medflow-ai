@@ -15,7 +15,7 @@ import {
   StatIcon,
   VitalIcon,
   toneClass,
-} from "./ui-helpers";
+} from "@/components/shared/ui-helpers";
 
 export function DashboardScreen({
   onQuickAction,

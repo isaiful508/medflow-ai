@@ -6,7 +6,7 @@ import {
   assessmentSummary,
   type MessageItem,
 } from "@/lib/medflow-ai-data";
-import { GlassCard } from "./ui-helpers";
+import { GlassCard } from "@/components/shared/ui-helpers";
 
 export function AiCheckerScreen({
   aiMessages,

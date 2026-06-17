@@ -10,7 +10,7 @@ import {
   Send,
   VideoOff,
 } from "lucide-react";
-import { Avatar, CircleButton, GlassCard, MiniChatBubble } from "./ui-helpers";
+import { Avatar, CircleButton, GlassCard, MiniChatBubble } from "@/components/shared/ui-helpers";
 
 export function VideoCallScreen({
   micMuted,
