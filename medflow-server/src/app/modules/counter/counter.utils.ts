@@ -1,24 +1,19 @@
-import { Schema, model } from "mongoose";
-import { TCounter } from "./counter.interface";
+import Counter from "./counter.model";
 
-const counterSchema = new Schema<TCounter>(
-  {
-    key: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    sequenceValue: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-  },
-  {
-    versionKey: false,
+export const getNextSequenceValue = async (key: string): Promise<number> => {
+  const updated = await Counter.findOneAndUpdate(
+    { key },
+    { $inc: { sequenceValue: 1 } },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  ).exec();
+
+  if (!updated) {
+    // In the unlikely event the upsert didn't return a doc
+    const created = await Counter.create({ key, sequenceValue: 1 });
+    return created.sequenceValue;
   }
-);
 
-const Counter = model<TCounter>("Counter", counterSchema);
+  return updated.sequenceValue;
+};
 
 export default Counter;

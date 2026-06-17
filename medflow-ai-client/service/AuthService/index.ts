@@ -1,56 +1,31 @@
+"use server";
+
 import { jwtDecode } from "jwt-decode";
+import { cookies } from "next/headers";
+import { FieldValues } from "react-hook-form";
 
-const TOKEN_KEY = "accessToken";
-
-const saveToken = (token: string | null) => {
-  if (typeof window === "undefined") return;
-  if (!token) {
-    window.localStorage.removeItem(TOKEN_KEY);
-    return;
-  }
-  window.localStorage.setItem(TOKEN_KEY, token);
-};
-
-const getToken = () => {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(TOKEN_KEY);
-};
-
-type AuthResponse = {
-  success: boolean;
-  message?: string;
-  data?: {
-    accessToken?: string;
-  };
-};
-
-export const registerUser = async (
-  userData: Record<string, unknown>,
-): Promise<AuthResponse | Error> => {
+export const registerUser = async (userData: FieldValues) => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/user`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     });
-
     const result = await res.json();
 
-    if (result.success && result.data?.accessToken) {
-      saveToken(result.data.accessToken);
+    if (result.success) {
+      (await cookies()).set("accessToken", result?.data.token);
     }
 
     return result;
   } catch (error: any) {
-    return Error(error?.message || "Unable to register.");
+    return Error(error);
   }
 };
 
-export const loginUser = async (
-  userData: Record<string, unknown>,
-): Promise<AuthResponse | Error> => {
+export const loginUser = async (userData: FieldValues) => {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/auth/login`, {
       method: "POST",
@@ -62,26 +37,28 @@ export const loginUser = async (
 
     const result = await res.json();
 
-    if (result.success && result.data?.accessToken) {
-      saveToken(result.data.accessToken);
+    if (result.success) {
+      (await cookies()).set("accessToken", result?.data.token);
     }
 
     return result;
   } catch (error: any) {
-    return Error(error?.message || "Unable to sign in.");
+    return Error(error);
   }
 };
 
 export const getCurrentUser = async () => {
-  const accessToken = getToken();
-  if (!accessToken) {
+  const accessToken = (await cookies()).get("accessToken")?.value;
+  let decodedData = null;
+
+  if (accessToken) {
+    decodedData = await jwtDecode(accessToken);
+    return decodedData;
+  } else {
     return null;
   }
-
-  const decodedData = jwtDecode<Record<string, unknown>>(accessToken);
-  return decodedData;
 };
 
 export const logout = async () => {
-  saveToken(null);
+  (await cookies()).delete("accessToken");
 };
