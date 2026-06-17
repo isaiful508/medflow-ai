@@ -40,5 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#brain dump
-brain_dump.txt
+#env files
+.env

@@ -29,8 +29,7 @@ import {
   type MessageItem,
   type ScreenId,
 } from "@/lib/medflow-ai-data";
-import { logout } from "@/lib/redux/auth-slice";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { getCurrentUser, logout } from "@/service/AuthService";
 
 import { DashboardScreen } from "./dashboard-screen";
 import { AiCheckerScreen } from "./ai-checker-screen";
@@ -104,12 +103,10 @@ export function DashboardShell() {
     }
   }, [theme]);
 
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const user = useAppSelector((state) => state.auth.user);
-  const token = useAppSelector((state) => state.auth.token);
-  const loggedIn = Boolean(user && token);
+  const [user, setUser] = useState<Record<string, unknown> | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   const userName = useMemo(() => {
@@ -158,6 +155,16 @@ export function DashboardShell() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [userMenuOpen]);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser as Record<string, unknown> | null);
+      setLoadingUser(false);
+    };
+
+    void loadUser();
+  }, []);
 
   const confirmDoctor = doctors[selectedDoctor] ?? doctors[0];
 
@@ -247,7 +254,7 @@ export function DashboardShell() {
         </nav>
 
         <div className="border-t border-white/10 p-3">
-          {!loggedIn ? (
+          {!loadingUser ? (
             <Link
               href="/login"
               className={`group relative flex items-center gap-3 rounded-2xl border border-white/15 bg-linear-to-br from-white/8 to-white/3 px-3 py-3 text-sm text-white/75 transition duration-300 hover:border-white/25 hover:bg-linear-to-br hover:from-white/12 hover:to-white/6 hover:text-white hover:shadow-lg hover:shadow-blue-500/10 ${
@@ -316,8 +323,9 @@ export function DashboardShell() {
                   <div className="my-1 h-px bg-linear-to-r from-white/0 via-white/10 to-white/0" />
                   <button
                     type="button"
-                    onClick={() => {
-                      dispatch(logout());
+                    onClick={async () => {
+                      await logout();
+                      setUser(null);
                       setUserMenuOpen(false);
                       router.push("/login");
                     }}
