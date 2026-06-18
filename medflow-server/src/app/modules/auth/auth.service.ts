@@ -21,6 +21,30 @@ const signAccessToken = (payload: TJwtPayload) => {
   return jwt.sign(payload, secret, jwtOptions);
 };
 
+const signRefreshToken = (payload: TJwtPayload) => {
+  const secret = config.jwt_refresh_secret;
+
+  if (!secret) {
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "JWT refresh secret is missing");
+  }
+
+  const jwtOptions: SignOptions = {
+    expiresIn: config.jwt_refresh_expires_in as SignOptions["expiresIn"],
+  };
+
+  return jwt.sign(payload, secret, jwtOptions);
+};
+
+const verifyRefreshToken = (token: string) => {
+  const secret = config.jwt_refresh_secret;
+
+  if (!secret) {
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "JWT refresh secret is missing");
+  }
+
+  return jwt.verify(token, secret) as TJwtPayload;
+};
+
 const ensureUserCustomId = async (user: InstanceType<typeof User>) => {
   if (user.userId) {
     return user.userId;
@@ -62,8 +86,19 @@ const registerUser = async (payload: TRegisterUser) => {
     role: user.role,
   });
 
+  const refreshToken = signRefreshToken({
+    userId: nextUserId,
+    email: user.email,
+    role: user.role,
+  });
+
+  // store refresh token
+  user.refreshToken = refreshToken;
+  await user.save();
+
   return {
     token,
+    refreshToken,
     user: {
       id: nextUserId,
       fullName: user.fullName,
@@ -95,8 +130,19 @@ const loginUser = async (payload: TLoginUser) => {
     role: user.role,
   });
 
+  const refreshToken = signRefreshToken({
+    userId: customUserId,
+    email: user.email,
+    role: user.role,
+  });
+
+  // persist refresh token
+  user.refreshToken = refreshToken;
+  await user.save();
+
   return {
     token,
+    refreshToken,
     user: {
       id: customUserId,
       fullName: user.fullName,
@@ -107,7 +153,67 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
+const refreshAuth = async (refreshToken: string) => {
+  try {
+    const decoded = verifyRefreshToken(refreshToken);
+
+    const user = await User.findOne({ userId: decoded.userId }).select(
+      "+refreshToken"
+    );
+
+    if (!user || !user.refreshToken) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Invalid refresh token");
+    }
+
+    if (user.refreshToken !== refreshToken) {
+      // token mismatch — possible rotation/revocation
+      throw new AppError(httpStatus.UNAUTHORIZED, "Invalid refresh token");
+    }
+
+    const newAccessToken = signAccessToken({
+      userId: user.userId as number,
+      email: user.email,
+      role: user.role,
+    });
+
+    const newRefreshToken = signRefreshToken({
+      userId: user.userId as number,
+      email: user.email,
+      role: user.role,
+    });
+
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    return {
+      token: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
+  } catch (err) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Invalid or expired refresh token");
+  }
+};
+
+const logout = async (refreshToken: string) => {
+  try {
+    const decoded = verifyRefreshToken(refreshToken);
+
+    const user = await User.findOne({ userId: decoded.userId }).select(
+      "+refreshToken"
+    );
+
+    if (!user) return;
+
+    user.refreshToken = undefined as any;
+    await user.save();
+  } catch {
+    // ignore errors during logout
+  }
+};
+
 export const AuthService = {
   registerUser,
   loginUser,
+  refreshAuth,
+  logout,
 };

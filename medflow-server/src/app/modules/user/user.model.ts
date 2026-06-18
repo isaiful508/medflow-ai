@@ -25,6 +25,10 @@ const userSchema = new Schema<TUser, UserModel>(
       required: true,
       select: false,
     },
+    refreshToken: {
+      type: String,
+      select: false,
+    },
     mobile: {
       type: String,
       required: true,

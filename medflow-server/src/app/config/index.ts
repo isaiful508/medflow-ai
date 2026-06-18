@@ -7,6 +7,9 @@ export default {
   port: process.env.PORT,
   database_url: process.env.DATABASE_URL,
   jwt_secret: process.env.JWT_SECRET,
-  jwt_expires_in: process.env.JWT_EXPIRES_IN || "7d",
+  jwt_expires_in: process.env.JWT_EXPIRES_IN || process.env.JWT_EXPIRE || "7d",
+  jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
+  jwt_refresh_expires_in:
+    process.env.JWT_REFRESH_EXPIRES_IN || process.env.JWT_REFRESH_EXPIRE || "30d",
   bcrypt_salt_rounds: Number(process.env.BCRYPT_SALT_ROUNDS || 10),
 };

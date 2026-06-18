@@ -32,7 +32,41 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const refresh = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ success: false, message: "Refresh token is required" });
+    }
+
+    const result = await AuthService.refreshAuth(refreshToken);
+
+    res.status(200).json({ success: true, message: "Token refreshed", data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ success: false, message: "Refresh token is required" });
+    }
+
+    await AuthService.logout(refreshToken);
+
+    res.status(200).json({ success: true, message: "Logged out" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const AuthController = {
   register,
   login,
+  refresh,
+  logout,
 };

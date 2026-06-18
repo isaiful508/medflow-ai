@@ -6,6 +6,7 @@ export type TUser = {
   fullName: string;
   email: string;
   password: string;
+  refreshToken?: string;
   mobile: string;
   role: TUserRole;
   termsAccepted: boolean;
