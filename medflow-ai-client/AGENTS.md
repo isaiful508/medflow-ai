@@ -4,7 +4,14 @@
 
 ### First Run
 
-On the first interaction, read `CLAUDE.md` to understand the project. Do not ask the user to repeat information that is already in `CLAUDE.md`.
+On the first interaction, read `CLAUDE.md` and `PROJECT_ROADMAP.md` (in project root) to understand the project, its current phase, and what features are next. Do not ask the user to repeat information that is already in these files.
+
+### Roadmap Awareness
+
+- **Always** check `PROJECT_ROADMAP.md` before starting work to understand current phase priorities
+- **Update** `PROJECT_ROADMAP.md` feature tracking checkboxes when completing features
+- **Follow** the phase order — don't jump ahead to later phases without completing earlier ones
+- **Reference** the roadmap's architecture section when adding new modules or components
 
 ### Before Every Task
 

@@ -2,6 +2,8 @@
 
 This file guides AI coding agents (Claude Code, Cursor, etc.) working on the MedFlow AI server. It describes **what to do** and **how to do it** in this codebase.
 
+> **Project Roadmap:** See [`PROJECT_ROADMAP.md`](../../PROJECT_ROADMAP.md) for the full development plan, feature tracking, and phase progress. Check the roadmap before starting work to understand current phase priorities. Update feature checkboxes when completing work.
+
 ---
 
 ## First Run
@@ -9,6 +11,7 @@ This file guides AI coding agents (Claude Code, Cursor, etc.) working on the Med
 1. Copy `.env.example` → `.env` and fill in real values.
 2. `npm install`
 3. `npm run dev` (starts the dev server with hot reload via `ts-node-dev`)
+4. Read `PROJECT_ROADMAP.md` to understand what phases and features are planned
 
 ---
 

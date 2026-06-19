@@ -1,5 +1,7 @@
 # CLAUDE.md — MedFlow AI Server
 
+> **Project Roadmap:** See [`PROJECT_ROADMAP.md`](../../PROJECT_ROADMAP.md) for the full development plan, feature tracking, and phase progress. Update the roadmap when completing features.
+
 > **Self-update rule:** Whenever you add, remove, or modify modules, dependencies, environment variables, architectural patterns, or project structure, you MUST update this file and `AGENTS.md` to reflect the changes. These files are the single source of truth for project documentation.
 
 ---

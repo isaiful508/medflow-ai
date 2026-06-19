@@ -1,5 +1,7 @@
 # CLAUDE.md — MedflowAI Client
 
+> **Project Roadmap:** See [`PROJECT_ROADMAP.md`](../../PROJECT_ROADMAP.md) for the full development plan, feature tracking, and phase progress. Update the roadmap when completing features.
+
 ## Project Overview
 
 **MedflowAI** is a telemedicine platform dashboard built with Next.js 16 (App Router), React 19, and TypeScript. It provides AI-powered symptom checking, appointment booking, video calls, chat, and health analytics for patients and doctors.
