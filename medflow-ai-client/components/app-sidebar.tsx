@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Menu,
@@ -28,7 +28,7 @@ import {
   SidebarMenuBadge,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { navItems } from "@/lib/medflow-ai-data";
+import { getVisibleNavItems } from "@/lib/navConfig";
 
 const navIcons = {
   dashboard: LayoutDashboard,
@@ -41,19 +41,15 @@ const navIcons = {
 } as const;
 
 export function AppSidebar({
-  screen,
-  setScreen,
-  collapsed,
-  setCollapsed,
+  collapsed: initialCollapsed,
 }: {
-  screen: string;
-  setScreen: (id: string) => void;
-  collapsed: boolean;
-  setCollapsed: (value: boolean) => void;
-}) {
+  collapsed?: boolean;
+} = {}) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, setUser, isLoading } = useUser();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(initialCollapsed ?? false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   const userName = useMemo(() => {
@@ -64,11 +60,14 @@ export function AppSidebar({
   }, [user]);
 
   const userRole = useMemo(() => {
-    if (!user || typeof user !== "object") return "Patient";
+    if (!user || typeof user !== "object") return "patient";
     const payload = user as Record<string, unknown>;
-    const rawRole = String(payload.role || payload.userRole || payload.access || "Patient").trim();
-    return rawRole ? `${rawRole.charAt(0).toUpperCase()}${rawRole.slice(1)}` : "Patient";
+    return String(payload.role || payload.userRole || payload.access || "patient").toLowerCase().trim() || "patient";
   }, [user]);
+
+  const visibleNavItems = useMemo(() => {
+    return getVisibleNavItems(userRole);
+  }, [userRole]);
 
   const userAvatar = useMemo(() => {
     if (!user || typeof user !== "object") return "";
@@ -121,13 +120,16 @@ export function AppSidebar({
 
       <SidebarContent>
         <SidebarGroup>
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = navIcons[item.id];
+            const isActive = pathname === item.href;
             return (
               <SidebarMenuItem
                 key={item.id}
-                active={item.id === screen}
-                onClick={() => setScreen(item.id)}
+                active={isActive}
+                onClick={() => {
+                  router.push(item.href);
+                }}
               >
                 <Icon className="size-4 shrink-0" />
                 {!collapsed ? <span>{item.label}</span> : null}
@@ -179,7 +181,7 @@ export function AppSidebar({
                 {!collapsed ? (
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-white">{userName}</p>
-                    <p className="text-[11px] text-white/50 transition group-hover:text-white/70">{userRole}</p>
+                    <p className="text-[11px] text-white/50 transition group-hover:text-white/70">{userRole.charAt(0).toUpperCase()}{userRole.slice(1)}</p>
                   </div>
                 ) : null}
                 {!collapsed ? (
@@ -195,7 +197,7 @@ export function AppSidebar({
                 <button
                   type="button"
                   onClick={() => {
-                    setScreen("profile");
+                    router.push("/profile");
                     setUserMenuOpen(false);
                   }}
                   className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 transition duration-300 hover:bg-linear-to-r hover:from-blue-500/20 hover:to-blue-600/10 hover:text-white"

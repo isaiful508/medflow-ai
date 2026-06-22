@@ -49,7 +49,7 @@
 
       setSuccessMessage(result.message || "Login successful.");
       router.push("/");
-      router.refresh?.();
+      // router.refresh?.();
     };
 
     const handleGoogleLogin = async () => {

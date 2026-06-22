@@ -122,12 +122,7 @@ export function DashboardShell() {
         <div className="medflow-ai-grid absolute inset-0 bg-[size:40px_40px]" />
       </div>
 
-      <AppSidebar
-        screen={screen}
-        setScreen={setScreen}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
+      <AppSidebar collapsed={collapsed} />
 
       <section className="relative z-10 flex min-h-screen flex-1 flex-col overflow-hidden">
         <header className="medflow-ai-topbar flex h-14 items-center gap-4 border-b border-white/10 px-4 backdrop-blur-2xl md:px-6">

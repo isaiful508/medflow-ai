@@ -7,6 +7,8 @@ export type ScreenId =
   | "profile"
   | "analytics";
 
+export type UserRole = "patient" | "doctor" | "admin";
+
 export type MessageItem = {
   role: "ai" | "user";
   text: string;
@@ -29,14 +31,22 @@ export type PatientItem = {
   status: "Active" | "Pending" | "Closed";
 };
 
-export const navItems: { id: ScreenId; label: string; badge?: string }[] = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "ai-checker", label: "AI Checker" },
-  { id: "appointments", label: "Appointments" },
-  { id: "video-call", label: "Video Call" },
-  { id: "chat", label: "Chat", badge: "3" },
-  { id: "profile", label: "Profile" },
-  { id: "analytics", label: "Analytics" },
+export type NavItem = {
+  id: ScreenId;
+  label: string;
+  href: string;
+  badge?: string;
+  requiredRoles: UserRole[];
+};
+
+export const navItems: NavItem[] = [
+  { id: "dashboard", label: "Dashboard", href: "/dashboard", requiredRoles: ["patient", "doctor", "admin"] },
+  { id: "ai-checker", label: "AI Checker", href: "/ai-checker", requiredRoles: ["patient"] },
+  { id: "appointments", label: "Appointments", href: "/appointments", requiredRoles: ["patient", "doctor"] },
+  { id: "video-call", label: "Video Call", href: "/video-call", requiredRoles: ["patient", "doctor"] },
+  { id: "chat", label: "Chat", href: "/chat", badge: "3", requiredRoles: ["patient", "doctor"] },
+  { id: "profile", label: "Profile", href: "/profile", requiredRoles: ["patient", "doctor", "admin"] },
+  { id: "analytics", label: "Analytics", href: "/analytics", requiredRoles: ["doctor", "admin"] },
 ];
 
 export const statCards = [
