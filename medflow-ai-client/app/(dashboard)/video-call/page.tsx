@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRequireRole } from "@/hooks/useRequireAuth";
+import { useRouter } from "next/navigation";
 import { VideoCallScreen } from "@/components/modules/dashboard/video-call-screen";
 
 export default function VideoCallPage() {
-  useRequireRole(["patient", "doctor"]);
-
+  const router = useRouter();
   const [micMuted, setMicMuted] = useState(true);
   const [camOff, setCamOff] = useState(false);
 
@@ -16,7 +15,7 @@ export default function VideoCallPage() {
       camOff={camOff}
       onMicToggle={() => setMicMuted((prev) => !prev)}
       onCamToggle={() => setCamOff((prev) => !prev)}
-      onEnd={() => {}}
+      onEnd={() => router.push("/dashboard")}
     />
   );
 }

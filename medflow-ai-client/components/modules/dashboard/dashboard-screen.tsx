@@ -1,11 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   appointments,
   notifications,
   profileVitals,
   statCards,
-  type ScreenId,
 } from "@/lib/medflow-ai-data";
 import {
   Avatar,
@@ -17,11 +17,8 @@ import {
   toneClass,
 } from "@/components/shared/ui-helpers";
 
-export function DashboardScreen({
-  onQuickAction,
-}: {
-  onQuickAction: (screen: ScreenId) => void;
-}) {
+export function DashboardScreen() {
+  const router = useRouter();
   return (
     <div className="space-y-4">
       <div className="grid gap-3 xl:grid-cols-4">
@@ -72,22 +69,22 @@ export function DashboardScreen({
               <QuickActionButton
                 label="AI Check"
                 tone="blue"
-                onClick={() => onQuickAction("ai-checker")}
+                onClick={() => router.push("/ai-checker")}
               />
               <QuickActionButton
                 label="Book Appt"
                 tone="green"
-                onClick={() => onQuickAction("appointments")}
+                onClick={() => router.push("/appointments")}
               />
               <QuickActionButton
                 label="Video Call"
                 tone="purple"
-                onClick={() => onQuickAction("video-call")}
+                onClick={() => router.push("/video-call")}
               />
               <QuickActionButton
                 label="Records"
                 tone="amber"
-                onClick={() => onQuickAction("profile")}
+                onClick={() => router.push("/profile")}
               />
             </div>
           </GlassCard>

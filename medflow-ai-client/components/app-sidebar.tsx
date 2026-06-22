@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Menu,
@@ -24,7 +24,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarMenuItem,
   SidebarMenuBadge,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -45,7 +44,6 @@ export function AppSidebar({
 }: {
   collapsed?: boolean;
 } = {}) {
-  const router = useRouter();
   const pathname = usePathname();
   const { user, setUser, isLoading } = useUser();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -62,7 +60,7 @@ export function AppSidebar({
   const userRole = useMemo(() => {
     if (!user || typeof user !== "object") return "patient";
     const payload = user as Record<string, unknown>;
-    return String(payload.role || payload.userRole || payload.access || "patient").toLowerCase().trim() || "patient";
+    return String(payload.role || "patient").toLowerCase().trim() || "patient";
   }, [user]);
 
   const visibleNavItems = useMemo(() => {
@@ -124,17 +122,20 @@ export function AppSidebar({
             const Icon = navIcons[item.id];
             const isActive = pathname === item.href;
             return (
-              <SidebarMenuItem
-                key={item.id}
-                active={isActive}
-                onClick={() => {
-                  router.push(item.href);
-                }}
-              >
-                <Icon className="size-4 shrink-0" />
-                {!collapsed ? <span>{item.label}</span> : null}
-                {!collapsed && item.badge ? <SidebarMenuBadge>{item.badge}</SidebarMenuBadge> : null}
-              </SidebarMenuItem>
+              <li key={item.id} className="list-none">
+                <Link
+                  href={item.href}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${
+                    isActive
+                      ? "bg-blue-500/15 text-blue-400"
+                      : "text-white/60 hover:bg-white/6 hover:text-white"
+                  }`}
+                >
+                  <Icon className="size-4 shrink-0" />
+                  {!collapsed ? <span>{item.label}</span> : null}
+                  {!collapsed && item.badge ? <SidebarMenuBadge>{item.badge}</SidebarMenuBadge> : null}
+                </Link>
+              </li>
             );
           })}
         </SidebarGroup>
@@ -194,19 +195,16 @@ export function AppSidebar({
 
             {userMenuOpen ? (
               <div className="absolute left-0 bottom-full mb-3 w-full space-y-1 overflow-hidden rounded-2xl border border-white/15 bg-linear-to-b from-slate-900/80 to-slate-950/90 p-2 shadow-2xl shadow-slate-900/50 backdrop-blur-xl">
-                <button
-                  type="button"
-                  onClick={() => {
-                    router.push("/profile");
-                    setUserMenuOpen(false);
-                  }}
+                <Link
+                  href="/profile"
+                  onClick={() => setUserMenuOpen(false)}
                   className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 transition duration-300 hover:bg-linear-to-r hover:from-blue-500/20 hover:to-blue-600/10 hover:text-white"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 transition group-hover/item:bg-blue-500/30">
                     <CircleUserRound className="size-4 text-blue-300" />
                   </div>
                   <span className="font-medium">View Profile</span>
-                </button>
+                </Link>
                 <div className="my-1 h-px bg-linear-to-r from-white/0 via-white/10 to-white/0" />
                 <button
                   type="button"
@@ -214,7 +212,6 @@ export function AppSidebar({
                     await logout();
                     setUser(null);
                     setUserMenuOpen(false);
-                    router.push("/login");
                   }}
                   className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 transition duration-300 hover:bg-linear-to-r hover:from-red-500/20 hover:to-rose-600/10 hover:text-red-200"
                 >

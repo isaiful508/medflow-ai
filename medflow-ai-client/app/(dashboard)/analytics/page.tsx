@@ -1,11 +1,13 @@
-"use client";
-
+import { redirect } from "next/navigation";
+import { getServerUser } from "@/lib/auth-server";
 import { recentPatients } from "@/lib/medflow-ai-data";
-import { useRequireRole } from "@/hooks/useRequireAuth";
 import { AnalyticsScreen } from "@/components/modules/dashboard/analytics-screen";
 
-export default function AnalyticsPage() {
-  useRequireRole(["doctor", "admin"]);
+export default async function AnalyticsPage() {
+  const user = await getServerUser();
+  if (!user || (user.role !== "doctor" && user.role !== "admin")) {
+    redirect("/dashboard");
+  }
 
   return <AnalyticsScreen patients={recentPatients} />;
 }

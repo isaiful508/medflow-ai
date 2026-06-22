@@ -112,7 +112,7 @@
       setSuccessMessage(result.message || "Registration successful. You can sign in now.");
       window.setTimeout(() => {
         router.push("/login");
-      }, 1200);
+      }, 1000);
     };
 
     const handleGoogleRegister = async () => {

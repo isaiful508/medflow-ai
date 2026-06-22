@@ -1,16 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  doctors,
-  timeSlotsByDay,
-} from "@/lib/medflow-ai-data";
-import { useRequireRole } from "@/hooks/useRequireAuth";
+import { doctors, timeSlotsByDay } from "@/lib/medflow-ai-data";
 import { AppointmentsScreen } from "@/components/modules/dashboard/appointments-screen";
 
 export default function AppointmentsPage() {
-  useRequireRole(["patient", "doctor"]);
-
   const [selectedDoctor, setSelectedDoctor] = useState(0);
   const [selectedDay, setSelectedDay] = useState("21");
   const [selectedTime, setSelectedTime] = useState("09:30");
