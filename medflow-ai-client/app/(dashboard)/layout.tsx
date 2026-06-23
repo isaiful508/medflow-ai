@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AppSidebar } from "@/components/app-sidebar";
-import { DashboardTopbar } from "@/components/dashboard-topbar";
+import { AppSidebar } from "@/components/shared/app-sidebar";
+import { Navbar } from "@/components/shared/navbar";
 import { navItems } from "@/lib/medflow-ai-data";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
@@ -12,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, isLoading } = useRequireAuth();
+  const { isLoading } = useRequireAuth();
 
   const currentNav = navItems.find((item) => item.href === pathname);
   const pageTitle = currentNav?.label ?? "Dashboard";
@@ -39,7 +39,7 @@ export default function DashboardLayout({
       <AppSidebar />
 
       <section className="relative z-10 flex min-h-screen flex-1 flex-col overflow-hidden">
-        <DashboardTopbar pageTitle={pageTitle} />
+        <Navbar pageTitle={pageTitle} />
 
         <div className="flex-1 overflow-y-auto px-4 py-5 md:px-6">
           {children}

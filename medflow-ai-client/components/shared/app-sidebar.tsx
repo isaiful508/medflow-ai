@@ -16,7 +16,7 @@ import {
   ChartNoAxesColumn,
 } from "lucide-react";
 
-import { logout } from "@/service/AuthService";
+import { logout } from "@/services/AuthService";
 import { useUser } from "@/context/UserContext";
 import {
   Sidebar,

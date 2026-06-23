@@ -9,7 +9,7 @@
   import { Button } from "@/components/ui/button";
   import { Card, CardContent, CardHeader } from "@/components/ui/card";
   import { Input } from "@/components/ui/input";
-  import { loginUser } from "@/service/AuthService";
+  import { loginUser } from "@/services/AuthService";
   import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
   import { useUser } from "@/context/UserContext";
 

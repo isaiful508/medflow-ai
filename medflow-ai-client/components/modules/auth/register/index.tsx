@@ -9,7 +9,7 @@
   import { Button } from "@/components/ui/button";
   import { Card, CardContent, CardHeader } from "@/components/ui/card";
   import { Input } from "@/components/ui/input";
-  import { registerUser } from "@/service/AuthService";
+  import { registerUser } from "@/services/AuthService";
   import { registerSchema, type RegisterFormValues } from "@/lib/validations/auth";
 
   function PasswordStrength({ password }: { password: string }) {

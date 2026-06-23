@@ -3,7 +3,7 @@
 import { startTransition, useEffect, useState } from "react";
 import { Bell, Menu, Moon, Search, SunMedium } from "lucide-react";
 
-export function DashboardTopbar({ pageTitle }: { pageTitle: string }) {
+export function Navbar({ pageTitle }: { pageTitle: string }) {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [query, setQuery] = useState("");
 

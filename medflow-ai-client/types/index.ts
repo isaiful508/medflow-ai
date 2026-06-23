@@ -1,20 +1,3 @@
-export interface IUser {
-  id: string;
-  email: string;
-  name?: string;
-  firstName?: string;
-  lastName?: string;
-  avatar?: string;
-  role?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+export * from "./user";
+export * from "./auth";
 
-export interface AuthResponse {
-  success: boolean;
-  message?: string;
-  data?: {
-    accessToken?: string;
-    user?: IUser;
-  };
-}
