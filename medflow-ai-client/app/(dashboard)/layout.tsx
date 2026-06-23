@@ -19,7 +19,7 @@ export default function DashboardLayout({
 
   if (isLoading) {
     return (
-      <div className="medflow-ai-shell flex min-h-screen items-center justify-center text-white">
+      <div className="medflow-ai-shell flex min-h-screen items-center justify-center overflow-x-hidden text-white">
         <div className="medflow-ai-bg pointer-events-none fixed inset-0 opacity-100">
           <div className="medflow-ai-orbs absolute inset-0" />
           <div className="medflow-ai-grid absolute inset-0 bg-[size:40px_40px]" />
@@ -30,7 +30,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <main className="medflow-ai-shell flex min-h-screen text-white">
+    <main className="medflow-ai-shell flex min-h-screen overflow-x-hidden text-white">
       <div className="medflow-ai-bg pointer-events-none fixed inset-0 opacity-100">
         <div className="medflow-ai-orbs absolute inset-0" />
         <div className="medflow-ai-grid absolute inset-0 bg-[size:40px_40px]" />

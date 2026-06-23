@@ -13,7 +13,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "relative z-10 hidden shrink-0 border-r data-[theme=light]:border-slate-200 data-[theme=dark]:border-white/10 data-[theme=light]:bg-white/6 data-[theme=dark]:bg-slate-950/80 backdrop-blur-2xl transition-all duration-300 md:flex md:flex-col",
+        "sticky top-0 z-10 hidden h-screen shrink-0 overflow-y-auto border-r data-[theme=light]:border-slate-200 data-[theme=dark]:border-white/10 data-[theme=light]:bg-white/6 data-[theme=dark]:bg-slate-950/80 backdrop-blur-2xl transition-all duration-300 md:flex md:flex-col",
         collapsed ? "w-[72px]" : "w-[240px]",
         className,
       )}
@@ -59,7 +59,7 @@ export function SidebarFooter({
   className?: string;
 }) {
   return (
-    <div className={cn("border-t data-[theme=light]:border-slate-200 data-[theme=dark]:border-white/10 p-3", className)}>{children}</div>
+    <div className={cn("border-t data-[theme=light]:border-slate-200 data-[theme=dark]:border-white/10", className)}>{children}</div>
   );
 }
 
