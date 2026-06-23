@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers/providers";
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "MedflowAI",
@@ -14,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="en" className={`${poppins.className} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col overflow-x-hidden">
         <script
           dangerouslySetInnerHTML={{
