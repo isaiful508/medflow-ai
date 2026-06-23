@@ -11,9 +11,11 @@
   import { Input } from "@/components/ui/input";
   import { loginUser } from "@/service/AuthService";
   import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
+  import { useUser } from "@/context/UserContext";
 
   export default function LoginForm() {
     const router = useRouter();
+    const { handleUser } = useUser();
     const [showPassword, setShowPassword] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -48,8 +50,8 @@
       }
 
       setSuccessMessage(result.message || "Login successful.");
-      router.push("/");
-      // router.refresh?.();
+      handleUser();
+      router.replace("/dashboard");
     };
 
     const handleGoogleLogin = async () => {

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardTopbar } from "@/components/dashboard-topbar";
 import { navItems } from "@/lib/medflow-ai-data";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function DashboardLayout({
   children,
@@ -11,9 +12,22 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user, isLoading } = useRequireAuth();
 
   const currentNav = navItems.find((item) => item.href === pathname);
   const pageTitle = currentNav?.label ?? "Dashboard";
+
+  if (isLoading) {
+    return (
+      <div className="medflow-ai-shell flex min-h-screen items-center justify-center text-white">
+        <div className="medflow-ai-bg pointer-events-none fixed inset-0 opacity-100">
+          <div className="medflow-ai-orbs absolute inset-0" />
+          <div className="medflow-ai-grid absolute inset-0 bg-[size:40px_40px]" />
+        </div>
+        <div className="relative z-10">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <main className="medflow-ai-shell flex min-h-screen text-white">

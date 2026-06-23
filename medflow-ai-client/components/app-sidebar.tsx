@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Menu,
@@ -44,6 +44,7 @@ export function AppSidebar({
 }: {
   collapsed?: boolean;
 } = {}) {
+  const router = useRouter();
   const pathname = usePathname();
   const { user, setUser, isLoading } = useUser();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -212,6 +213,7 @@ export function AppSidebar({
                     await logout();
                     setUser(null);
                     setUserMenuOpen(false);
+                    router.push("/login");
                   }}
                   className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 transition duration-300 hover:bg-linear-to-r hover:from-red-500/20 hover:to-rose-600/10 hover:text-red-200"
                 >

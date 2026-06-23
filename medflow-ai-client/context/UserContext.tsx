@@ -1,6 +1,6 @@
 "use client";
 
-import { getCurrentUser } from "@/service/AuthService";
+import { getCurrentUserClient } from "@/lib/auth-client";
 import {
   createContext,
   Dispatch,
@@ -15,6 +15,7 @@ interface IUserProviderValues {
   isLoading: boolean;
   setUser: (user: any | null) => void;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
+  handleUser: () => void;
 }
 
 const UserContext = createContext<IUserProviderValues | undefined>(undefined);
@@ -23,31 +24,18 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const handleUser = () => {
+    const currentUser = getCurrentUserClient();
+    setUser(currentUser);
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    let isMounted = true;
-
-    const loadUser = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        if (!isMounted) return;
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Failed to fetch current user:", error);
-        if (isMounted) setUser(null);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-
-    void loadUser();
-
-    return () => {
-      isMounted = false;
-    };
+    handleUser();
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, isLoading, setIsLoading }}>
+    <UserContext.Provider value={{ user, setUser, isLoading, setIsLoading, handleUser }}>
       {children}
     </UserContext.Provider>
   );
