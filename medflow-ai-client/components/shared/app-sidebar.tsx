@@ -101,13 +101,13 @@ export function AppSidebar({
   return (
     <Sidebar collapsed={collapsed}>
       <SidebarHeader>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-sky-400">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: "linear-gradient(135deg, var(--medflow-primary-600), var(--mc-accent))" }}>
           <HeartPulse className="size-4 text-white" />
         </div>
         {!collapsed ? (
           <div className="min-w-0">
             <p className="text-sm font-semibold tracking-wide">
-              Medflow<span className="text-sky-400">AI</span>
+              Medflow<span style={{ color: "var(--mc-accent)" }}>AI</span>
             </p>
             <p className="text-[11px] text-white/40">Telemedicine Platform</p>
           </div>
@@ -126,13 +126,22 @@ export function AppSidebar({
               <li key={item.id} className="list-none">
                 <Link
                   href={item.href}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${
+                  className={`group/nav relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 ease-out ${
                     isActive
-                      ? "bg-blue-500/15 text-blue-400"
-                      : "text-white/60 hover:bg-white/6 hover:text-white"
+                      ? "bg-(--mc-accent) text-(--mc-fg) shadow-sm shadow-(--mc-accent)/15"
+                      : "text-(--mc-text-60) hover:bg-(--mc-soft) hover:text-(--mc-fg) hover:translate-x-0.5"
                   }`}
                 >
-                  <Icon className="size-4 shrink-0" />
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full" style={{ background: "var(--mc-accent)" }} />
+                  )}
+                  <span className={`flex size-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? "bg-(--mc-accent)/20 text-(--mc-accent) shadow-sm shadow-(--mc-accent)/20"
+                      : "bg-(--mc-soft) text-(--mc-text-50) group-hover/nav:bg-(--mc-accent)/15 group-hover/nav:text-(--mc-accent) group-hover/nav:shadow-sm group-hover/nav:shadow-(--mc-accent)/10"
+                  }`}>
+                    <Icon className="size-4" />
+                  </span>
                   {!collapsed ? <span>{item.label}</span> : null}
                   {!collapsed && item.badge ? <SidebarMenuBadge>{item.badge}</SidebarMenuBadge> : null}
                 </Link>
