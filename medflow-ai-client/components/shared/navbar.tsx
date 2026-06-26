@@ -1,30 +1,12 @@
 "use client";
 
-import { startTransition, useEffect, useState } from "react";
+import { useState } from "react";
 import { Bell, Moon, Search, SunMedium } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 export function Navbar({ pageTitle }: { pageTitle: string }) {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const { theme, toggleTheme } = useTheme();
   const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    const attrTheme = document.documentElement.getAttribute("data-theme");
-    const resolvedTheme =
-      attrTheme === "light" || attrTheme === "dark" ? attrTheme : "dark";
-
-    if (resolvedTheme !== theme) {
-      startTransition(() => {
-        setTheme(resolvedTheme);
-      });
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    document.documentElement.setAttribute("data-theme", nextTheme);
-    window.localStorage.setItem("medflow-ai-theme", nextTheme);
-  };
 
   return (
     <header className="medflow-ai-topbar flex h-14 items-center gap-4 border-b border-white/10 px-4 backdrop-blur-2xl md:px-6">

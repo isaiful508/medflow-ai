@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginUser } from "@/services/AuthService";
 import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { useUser } from "@/context/UserContext";
+import { useTheme } from "@/hooks/useTheme";
+import Illustration from "../Illustration";
+import SocialLogin from "../socialLogin";
 
 type UserRole = "admin" | "doctor" | "patient";
 
@@ -18,41 +21,15 @@ interface LoginFormWithRole extends LoginFormValues {
   role: UserRole;
 }
 
-function getTheme(): "dark" | "light" {
-  if (typeof document === "undefined") return "dark";
-  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-}
-
 export default function LoginForm() {
   const router = useRouter();
   const { handleUser } = useUser();
+  const { isDark: isDarkMode, toggleTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedRole, setSelectedRole] = useState<UserRole>("patient");
-  const [isDarkMode, setIsDarkMode] = useState(getTheme() === "dark");
-
-  useEffect(() => {
-    const sync = () => setIsDarkMode(getTheme() === "dark");
-    const observer = new MutationObserver(sync);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    const onStorage = () => sync();
-    window.addEventListener("storage", onStorage);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("storage", onStorage);
-    };
-  }, []);
-
-  const toggleTheme = () => {
-    const next = isDarkMode ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("medflow-ai-theme", next);
-    } catch {}
-    setIsDarkMode(next === "dark");
-  };
 
   const {
     register,
@@ -133,15 +110,11 @@ export default function LoginForm() {
             className={`flex-1 p-10 lg:p-12 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
           >
             {/* Logo */}
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white ${
-                    isDarkMode ? "bg-gradient-to-br from-blue-600 to-blue-800" : "bg-gradient-to-br from-blue-500 to-blue-700"
-                  }`}
-                >
-                  M
-                </div>
+            <div className="mb-8 text-center">
+              <div className="flex items-center gap-2 mb-2 justify-center">
+                <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+                <Stethoscope className="w-4 h-4 text-white" />
+              </div>
                 <span
                   className={`text-xl font-bold tracking-tight ${
                     isDarkMode ? "text-white" : "text-gray-900"
@@ -163,7 +136,7 @@ export default function LoginForm() {
             </div>
 
             {/* Heading */}
-            <div className="mb-8">
+            <div className="mb-8 text-center">
               <h1
                 className={`text-2xl font-bold mb-2 ${
                   isDarkMode ? "text-white" : "text-gray-900"
@@ -180,14 +153,7 @@ export default function LoginForm() {
 
             {/* Role Selection */}
             <div className="mb-7">
-              <p
-                className={`text-xs font-semibold mb-3 tracking-wide uppercase ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                Select Role
-              </p>
-              <div className="flex gap-3">
+              <div className="flex gap-3 justify-center">
                 {(["admin", "doctor", "patient"] as const).map((role) => (
                   <button
                     key={role}
@@ -319,7 +285,7 @@ export default function LoginForm() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full h-11 rounded-lg font-semibold text-sm transition-all ${
+                className={`w-full h-11 rounded-md font-semibold text-sm transition-all cursor-pointer ${
                   isDarkMode
                     ? "bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-900/30"
                     : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-600/30"
@@ -327,26 +293,7 @@ export default function LoginForm() {
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
-                      />
-                    </svg>
-                    Signing in...
+                    Logging in...
                   </span>
                 ) : (
                   "Login"
@@ -369,141 +316,16 @@ export default function LoginForm() {
                     : "text-blue-600 hover:text-blue-700"
                 }`}
               >
-                Sign up
+                Register
               </Link>
             </p>
 
             {/* Social Login */}
-            <div className="mt-6 pt-6">
-              <div
-                className={`flex items-center gap-3 mb-5 ${
-                  isDarkMode ? "opacity-60" : "opacity-50"
-                }`}
-              >
-                <div
-                  className={`flex-1 h-px ${
-                    isDarkMode ? "bg-gray-700" : "bg-gray-300"
-                  }`}
-                />
-                <span
-                  className={`text-xs uppercase tracking-wide ${
-                    isDarkMode ? "text-gray-500" : "text-gray-500"
-                  }`}
-                >
-                  Or continue with
-                </span>
-                <div
-                  className={`flex-1 h-px ${
-                    isDarkMode ? "bg-gray-700" : "bg-gray-300"
-                  }`}
-                />
-              </div>
-              <div className="flex gap-3 justify-center">
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700/50 hover:bg-gray-700 text-gray-300"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-                  }`}
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  </svg>
-                </button>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700/50 hover:bg-gray-700 text-gray-300"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-                  }`}
-                >
-                  <Lock className="w-5 h-5" />
-                </button>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDarkMode
-                      ? "bg-gray-700/50 hover:bg-gray-700 text-gray-300"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-                  }`}
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            <SocialLogin isDarkMode={isDarkMode} />
           </div>
 
           {/* Right Side - Illustration */}
-          <div
-            className={`hidden lg:flex flex-1 items-center justify-center ${
-              isDarkMode
-                ? "bg-gradient-to-b from-amber-100 to-orange-100"
-                : "bg-gradient-to-b from-amber-50 to-orange-50"
-            } relative overflow-hidden`}
-          >
-            {/* Decorative Elements */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-orange-400 blur-3xl" />
-              <div className="absolute bottom-20 right-10 w-40 h-40 rounded-full bg-yellow-400 blur-3xl" />
-            </div>
-
-            {/* Illustration Placeholder */}
-            <div className="relative z-10 text-center">
-              <svg
-                viewBox="0 0 200 200"
-                className="w-48 h-48 mx-auto"
-              >
-                {/* Sun */}
-                <circle cx="150" cy="40" r="30" fill="currentColor" className="text-yellow-400" />
-
-                {/* Boat */}
-                <ellipse cx="100" cy="120" rx="60" ry="15" fill="currentColor" className="text-teal-700" />
-
-                {/* Sail */}
-                <polygon points="100,120 100,40 150,120" fill="currentColor" className="text-yellow-600" />
-                <polygon points="100,120 100,55 70,120" fill="currentColor" className="text-amber-700" />
-
-                {/* Person */}
-                <circle cx="95" cy="100" r="6" fill="currentColor" className="text-amber-800" />
-                <line x1="95" y1="106" x2="95" y2="125" stroke="currentColor" strokeWidth="3" className="text-amber-800" />
-                <line x1="85" y1="110" x2="105" y2="110" stroke="currentColor" strokeWidth="3" className="text-amber-800" />
-
-                {/* Water waves */}
-                <path d="M 20 140 Q 30 135 40 140 T 60 140" stroke="currentColor" strokeWidth="2" fill="none" className="text-gray-600" opacity="0.5" />
-                <path d="M 120 140 Q 130 135 140 140 T 160 140" stroke="currentColor" strokeWidth="2" fill="none" className="text-gray-600" opacity="0.5" />
-
-                {/* Birds */}
-                <path d="M 40 50 Q 50 45 60 50" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-gray-700" />
-                <path d="M 160 60 Q 170 55 180 60" stroke="currentColor" strokeWidth="1.5" fill="none" className="text-gray-700" />
-              </svg>
-
-              <p
-                className={`mt-6 text-lg font-semibold ${
-                  isDarkMode ? "text-gray-800" : "text-gray-700"
-                }`}
-              >
-                Welcome to MedflowAI
-              </p>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-600" : "text-gray-500"
-                }`}
-              >
-                Your trusted telemedicine partner
-              </p>
-            </div>
-          </div>
+          <Illustration isDarkMode={isDarkMode} />
         </div>
       </div>
     </div>
