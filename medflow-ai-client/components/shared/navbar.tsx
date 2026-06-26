@@ -1,7 +1,7 @@
 "use client";
 
 import { startTransition, useEffect, useState } from "react";
-import { Bell, Menu, Moon, Search, SunMedium } from "lucide-react";
+import { Bell, Moon, Search, SunMedium } from "lucide-react";
 
 export function Navbar({ pageTitle }: { pageTitle: string }) {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
