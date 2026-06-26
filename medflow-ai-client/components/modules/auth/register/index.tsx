@@ -18,7 +18,7 @@ type UserRole = "doctor" | "patient";
 
 export default function RegisterForm() {
   const router = useRouter();
-  const { isDark: isDarkMode, toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,17 +32,8 @@ export default function RegisterForm() {
         ? role === "doctor"
           ? "bg-orange-500 text-white shadow-lg shadow-orange-500/40"
           : "bg-blue-600 text-white shadow-lg shadow-blue-600/40"
-        : isDarkMode
-          ? "bg-gray-700/40 text-gray-300 hover:opacity-80"
-          : "bg-gray-200 text-gray-600 hover:opacity-80"
+        : "medflow-auth-inactive hover:opacity-80"
     }`;
-
-  const labelColor = isDarkMode ? "text-gray-400" : "text-gray-600";
-  const inputClass =
-    "rounded-lg h-11 border transition-all " +
-    (isDarkMode
-      ? "border-gray-700 bg-gray-700/50 text-white placeholder:text-gray-500 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
-      : "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:border-blue-500 focus-visible:ring-blue-500/20");
 
   const {
     register,
@@ -94,71 +85,42 @@ export default function RegisterForm() {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center transition-colors duration-300 medflow-ai-grid relative overflow-hidden ${
-        isDarkMode ? "bg-gray-900" : "bg-gray-50"
-      }`}
-      style={{ backgroundSize: "40px 40px" }}
+      className="min-h-screen flex items-center justify-center transition-colors duration-300 medflow-auth-shell medflow-ai-grid relative overflow-hidden"
+      style={{ backgroundSize: "60px 60px" }}
     >
       <div className="w-full max-w-5xl mx-auto px-4">
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className={`fixed top-6 right-6 z-20 p-2 rounded-lg transition-colors duration-200 ${
-            isDarkMode
-              ? "bg-gray-800 text-yellow-400 hover:bg-gray-700"
-              : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-          }`}
+          className="fixed top-6 right-6 z-20 p-2 rounded-lg transition-colors duration-200 medflow-auth-toggle"
           aria-label="Toggle theme"
         >
-          {isDarkMode ? "☀️" : "🌙"}
+          {theme === "dark" ? "☀️" : "🌙"}
         </button>
+
         {/* Main Card */}
-        <div
-          className={`rounded-2xl overflow-hidden shadow-2xl flex transition-all duration-300 ${
-            isDarkMode ? "bg-gray-800" : "bg-white"
-          }`}
-        >
+        <div className="rounded-2xl overflow-hidden shadow-2xl flex transition-all duration-300 medflow-auth-card">
           {/* Left Side - Form */}
-          <div
-            className={`flex-1 p-10 lg:p-12 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
-          >
+          <div className="flex-1 p-10 lg:p-12 medflow-auth-card">
             {/* Logo */}
             <div className="mb-8 text-center">
               <div className="flex items-center gap-2 mb-2 justify-center">
                 <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
                   <Stethoscope className="w-4 h-4 text-white" />
                 </div>
-                <span
-                  className={`text-xl font-bold tracking-tight ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  <span className={isDarkMode ? "text-blue-400" : "text-blue-600"}>
-                    Medflow
-                  </span>
-                  AI
+                <span className="text-xl font-bold tracking-tight">
+                  <span className="medflow-auth-accent">Medflow</span>AI
                 </span>
               </div>
-              <p
-                className={`text-xs tracking-wide ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <p className="text-xs tracking-wide medflow-auth-muted">
                 Your trusted telemedicine platform
               </p>
             </div>
 
             {/* Heading */}
             <div className="mb-8 text-center">
-              <h1
-                className={`text-2xl font-bold mb-2 ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Create your account
-              </h1>
-              <p
-                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-              >
+              <h1 className="text-2xl font-bold mb-2">Create your account</h1>
+              <p className="text-sm medflow-auth-muted">
                 Start your journey with MedflowAI
               </p>
             </div>
@@ -166,40 +128,26 @@ export default function RegisterForm() {
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {submitError && (
-                <div
-                  className={`rounded-lg border px-4 py-3 text-sm ${
-                    isDarkMode
-                      ? "border-red-400/25 bg-red-500/10 text-red-300"
-                      : "border-red-400/50 bg-red-50 text-red-700"
-                  }`}
-                >
+                <div className="rounded-lg border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                   {submitError}
                 </div>
               )}
 
               {successMessage && (
-                <div
-                  className={`rounded-lg border px-4 py-3 text-sm ${
-                    isDarkMode
-                      ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-300"
-                      : "border-emerald-400/50 bg-emerald-50 text-emerald-700"
-                  }`}
-                >
+                <div className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
                   {successMessage}
                 </div>
               )}
 
               {/* Full Name */}
               <div>
-                <label
-                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
-                >
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                   Full name
                 </label>
                 <Input
                   type="text"
                   placeholder="John Doe"
-                  className={inputClass}
+                  className="rounded-lg h-11 border transition-all medflow-auth-input focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                   {...register("fullName")}
                 />
                 {errors.fullName && (
@@ -209,19 +157,17 @@ export default function RegisterForm() {
 
               {/* Phone */}
               <div>
-                <label
-                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
-                >
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                   Phone number
                 </label>
                 <div className="relative">
                   <Input
                     type="tel"
                     placeholder="1234567890"
-                    className={`${inputClass} pr-10`}
+                    className="rounded-lg h-11 border transition-all medflow-auth-input pr-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                     {...register("mobile")}
                   />
-                  <Phone className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+                  <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 medflow-auth-icon-muted" />
                 </div>
                 {errors.mobile && (
                   <p className="text-xs text-red-500 mt-1.5">{errors.mobile.message}</p>
@@ -230,15 +176,13 @@ export default function RegisterForm() {
 
               {/* Email */}
               <div>
-                <label
-                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
-                >
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                   Email address
                 </label>
                 <Input
                   type="email"
                   placeholder="you@example.com"
-                  className={inputClass}
+                  className="rounded-lg h-11 border transition-all medflow-auth-input focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                   {...register("email")}
                 />
                 {errors.email && (
@@ -248,10 +192,7 @@ export default function RegisterForm() {
 
               {/* Role (radio) */}
               <div>
-                <label
-                  htmlFor="role"
-                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
-                >
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                   Register as
                 </label>
                 <div className="flex gap-3">
@@ -289,26 +230,20 @@ export default function RegisterForm() {
               <div className="grid grid-cols-2 gap-4">
                 {/* Password */}
                 <div>
-                  <label
-                    className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
-                  >
+                  <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                     Password
                   </label>
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      className={`${inputClass} pr-10`}
+                      className="rounded-lg h-11 border transition-all medflow-auth-input pr-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                       {...register("password")}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((current) => !current)}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
-                        isDarkMode
-                          ? "text-gray-500 hover:text-gray-300"
-                          : "text-gray-400 hover:text-gray-600"
-                      }`}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors medflow-auth-icon-muted"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -320,26 +255,20 @@ export default function RegisterForm() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label
-                    className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
-                  >
+                  <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                     Confirm password
                   </label>
                   <div className="relative">
                     <Input
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      className={`${inputClass} pr-10`}
+                      className="rounded-lg h-11 border transition-all medflow-auth-input pr-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                       {...register("confirmPassword")}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword((current) => !current)}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
-                        isDarkMode
-                          ? "text-gray-500 hover:text-gray-300"
-                          : "text-gray-400 hover:text-gray-600"
-                      }`}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors medflow-auth-icon-muted"
                     >
                       {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -354,16 +283,12 @@ export default function RegisterForm() {
               <div className="flex items-start gap-2 pt-1">
                 <input
                   type="checkbox"
-                  className={`mt-1 rounded cursor-pointer accent-blue-500 ${isDarkMode ? "bg-gray-700 border-gray-600" : ""}`}
+                  className="mt-1 rounded cursor-pointer accent-blue-500 medflow-auth-checkbox"
                   {...register("terms")}
                 />
-                <span
-                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-                >
+                <span className="text-sm medflow-auth-muted">
                   I agree to the{" "}
-                  <span className={isDarkMode ? "text-blue-400" : "text-blue-600"}>
-                    terms and conditions
-                  </span>
+                  <span className="medflow-auth-accent">terms and conditions</span>
                 </span>
               </div>
               {errors.terms && (
@@ -374,41 +299,26 @@ export default function RegisterForm() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full h-11 rounded-md font-semibold text-sm transition-all cursor-pointer ${
-                  isDarkMode
-                    ? "bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-900/30"
-                    : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-600/30"
-                }`}
+                className="w-full h-11 rounded-md font-semibold text-sm transition-all cursor-pointer bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-600/30"
               >
                 {isLoading ? "Creating account..." : "Create account"}
               </Button>
             </form>
 
             {/* Sign In Link */}
-            <p
-              className={`text-center text-sm mt-6 ${
-                isDarkMode ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
+            <p className="text-center text-sm mt-6 medflow-auth-muted">
               Already have an account?{" "}
-              <Link
-                href="/login"
-                className={`font-semibold transition-colors ${
-                  isDarkMode
-                    ? "text-blue-400 hover:text-blue-300"
-                    : "text-blue-600 hover:text-blue-700"
-                }`}
-              >
-                Log in
+              <Link href="/login" className="font-semibold transition-colors medflow-auth-accent">
+                Sign in
               </Link>
             </p>
 
             {/* Social Login */}
-            <SocialLogin isDarkMode={isDarkMode} />
+            <SocialLogin isDarkMode={theme === "dark"} />
           </div>
 
           {/* Right Side - Illustration */}
-          <Illustration isDarkMode={isDarkMode} />
+          <Illustration isDarkMode={theme === "dark"} />
         </div>
       </div>
     </div>

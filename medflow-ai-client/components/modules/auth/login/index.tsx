@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Lock, Stethoscope } from "lucide-react";
+import { Eye, EyeOff, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginUser } from "@/services/AuthService";
@@ -17,14 +17,10 @@ import SocialLogin from "../socialLogin";
 
 type UserRole = "admin" | "doctor" | "patient";
 
-interface LoginFormWithRole extends LoginFormValues {
-  role: UserRole;
-}
-
 export default function LoginForm() {
   const router = useRouter();
   const { handleUser } = useUser();
-  const { isDark: isDarkMode, toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -34,11 +30,25 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "", remember: false },
   });
+
+  const ROLE_CREDENTIALS: Record<UserRole, { email: string; password: string }> = {
+    admin: { email: "saiful@email.com", password: "PYXS9R508sa" },
+    doctor: { email: "doctor@email.com", password: "PYXS9R508sa" },
+    patient: { email: "patient@email.com", password: "PYXS9R508sa" },
+  };
+
+  const handleRoleSelect = (role: UserRole) => {
+    setSelectedRole(role);
+    const creds = ROLE_CREDENTIALS[role];
+    setValue("email", creds.email, { shouldValidate: true });
+    setValue("password", creds.password, { shouldValidate: true });
+  };
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
@@ -75,80 +85,47 @@ export default function LoginForm() {
       if (role === "doctor") return `${baseClass} bg-orange-500 text-white shadow-lg shadow-orange-500/40`;
       if (role === "patient") return `${baseClass} bg-blue-600 text-white shadow-lg shadow-blue-600/40`;
     }
-    return `${baseClass} ${isDarkMode ? "bg-gray-700/40 text-gray-300" : "bg-gray-200 text-gray-600"} hover:opacity-80`;
+    return `${baseClass} medflow-auth-inactive hover:opacity-80`;
   };
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center transition-colors duration-300 medflow-ai-grid relative overflow-hidden ${
-        isDarkMode ? "bg-gray-900" : "bg-gray-50"
-      }`}
-      style={{ backgroundSize: "40px 40px" }}
+      className="min-h-screen flex items-center justify-center transition-colors duration-300 medflow-auth-shell medflow-ai-grid relative overflow-hidden"
+      style={{ backgroundSize: "60px 60px" }}
     >
       <div className="w-full max-w-5xl mx-auto px-4">
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className={`fixed top-6 right-6 z-20 p-2 rounded-lg transition-colors duration-200 ${
-            isDarkMode
-              ? "bg-gray-800 text-yellow-400 hover:bg-gray-700"
-              : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-          }`}
+          className="fixed top-6 right-6 z-20 p-2 rounded-lg transition-colors duration-200 medflow-auth-toggle"
           aria-label="Toggle theme"
         >
-          {isDarkMode ? "☀️" : "🌙"}
+          {theme === "dark" ? "☀️" : "🌙"}
         </button>
 
         {/* Main Card */}
-        <div
-          className={`rounded-2xl overflow-hidden shadow-2xl flex transition-all duration-300 ${
-            isDarkMode ? "bg-gray-800" : "bg-white"
-          }`}
-        >
+        <div className="rounded-2xl overflow-hidden shadow-2xl flex transition-all duration-300 medflow-auth-card">
           {/* Left Side - Form */}
-          <div
-            className={`flex-1 p-10 lg:p-12 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
-          >
+          <div className="flex-1 p-10 lg:p-12 medflow-auth-card">
             {/* Logo */}
             <div className="mb-8 text-center">
               <div className="flex items-center gap-2 mb-2 justify-center">
                 <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
-                <Stethoscope className="w-4 h-4 text-white" />
-              </div>
-                <span
-                  className={`text-xl font-bold tracking-tight ${
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  <span className={isDarkMode ? "text-blue-400" : "text-blue-600"}>
-                    Medflow
-                  </span>
-                  AI
+                  <Stethoscope className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-xl font-bold tracking-tight medflow-auth-shell">
+                  <span className="medflow-auth-accent">Medflow</span>AI
                 </span>
               </div>
-              <p
-                className={`text-xs tracking-wide ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <p className="text-xs tracking-wide medflow-auth-muted">
                 Your trusted telemedicine platform
               </p>
             </div>
 
             {/* Heading */}
             <div className="mb-8 text-center">
-              <h1
-                className={`text-2xl font-bold mb-2 ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Sign in
-              </h1>
-              <p
-                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-              >
-                Enter your credentials to log in
-              </p>
+              <h1 className="text-2xl font-bold mb-2 medflow-auth-shell">Sign in</h1>
+              <p className="text-sm medflow-auth-muted">Enter your credentials to log in</p>
             </div>
 
             {/* Role Selection */}
@@ -157,7 +134,7 @@ export default function LoginForm() {
                 {(["admin", "doctor", "patient"] as const).map((role) => (
                   <button
                     key={role}
-                    onClick={() => setSelectedRole(role)}
+                    onClick={() => handleRoleSelect(role)}
                     className={getRoleStyles(role)}
                   >
                     {role.charAt(0).toUpperCase() + role.slice(1)}
@@ -169,46 +146,26 @@ export default function LoginForm() {
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {submitError && (
-                <div
-                  className={`rounded-lg border px-4 py-3 text-sm ${
-                    isDarkMode
-                      ? "border-red-400/25 bg-red-500/10 text-red-300"
-                      : "border-red-400/50 bg-red-50 text-red-700"
-                  }`}
-                >
+                <div className="rounded-lg border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                   {submitError}
                 </div>
               )}
 
               {successMessage && (
-                <div
-                  className={`rounded-lg border px-4 py-3 text-sm ${
-                    isDarkMode
-                      ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-300"
-                      : "border-emerald-400/50 bg-emerald-50 text-emerald-700"
-                  }`}
-                >
+                <div className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
                   {successMessage}
                 </div>
               )}
 
               {/* Username Input */}
               <div>
-                <label
-                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${
-                    isDarkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                   Username
                 </label>
                 <Input
                   type="text"
                   placeholder="cliniyaAdmin"
-                  className={`rounded-lg h-11 border transition-all ${
-                    isDarkMode
-                      ? "border-gray-700 bg-gray-700/50 text-white placeholder:text-gray-500 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
-                      : "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
-                  }`}
+                  className="rounded-lg h-11 border transition-all medflow-auth-input focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                   {...register("email")}
                 />
                 {errors.email && (
@@ -218,38 +175,22 @@ export default function LoginForm() {
 
               {/* Password Input */}
               <div>
-                <label
-                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${
-                    isDarkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase medflow-auth-label">
                   Password
                 </label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className={`rounded-lg h-11 border pr-10 transition-all ${
-                      isDarkMode
-                        ? "border-gray-700 bg-gray-700/50 text-white placeholder:text-gray-500 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
-                        : "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
-                    }`}
+                    className="rounded-lg h-11 border pr-10 transition-all medflow-auth-input focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                     {...register("password")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
-                      isDarkMode
-                        ? "text-gray-500 hover:text-gray-300"
-                        : "text-gray-400 hover:text-gray-600"
-                    }`}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors medflow-auth-icon-muted"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
@@ -262,20 +203,14 @@ export default function LoginForm() {
                 <label className="flex items-center gap-2 cursor-pointer text-sm">
                   <input
                     type="checkbox"
-                    className={`rounded cursor-pointer accent-blue-500 ${isDarkMode ? "bg-gray-700 border-gray-600" : ""}`}
+                    className="rounded cursor-pointer accent-blue-500 medflow-auth-checkbox"
                     {...register("remember")}
                   />
-                  <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
-                    Remember me
-                  </span>
+                  <span className="medflow-auth-muted">Remember me</span>
                 </label>
                 <Link
                   href="/forgot-password"
-                  className={`text-sm font-medium transition-colors ${
-                    isDarkMode
-                      ? "text-blue-400 hover:text-blue-300"
-                      : "text-blue-600 hover:text-blue-700"
-                  }`}
+                  className="text-sm font-medium transition-colors medflow-auth-accent"
                 >
                   Forgot Password?
                 </Link>
@@ -285,11 +220,7 @@ export default function LoginForm() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full h-11 rounded-md font-semibold text-sm transition-all cursor-pointer ${
-                  isDarkMode
-                    ? "bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-900/30"
-                    : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-600/30"
-                }`}
+                className="w-full h-11 rounded-md font-semibold text-sm transition-all cursor-pointer bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-600/30"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -302,30 +233,19 @@ export default function LoginForm() {
             </form>
 
             {/* Sign Up Link */}
-            <p
-              className={`text-center text-sm mt-6 ${
-                isDarkMode ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
+            <p className="text-center text-sm mt-6 medflow-auth-muted">
               Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className={`font-semibold transition-colors ${
-                  isDarkMode
-                    ? "text-blue-400 hover:text-blue-300"
-                    : "text-blue-600 hover:text-blue-700"
-                }`}
-              >
+              <Link href="/register" className="font-semibold transition-colors medflow-auth-accent">
                 Register
               </Link>
             </p>
 
             {/* Social Login */}
-            <SocialLogin isDarkMode={isDarkMode} />
+            <SocialLogin isDarkMode={theme === "dark"} />
           </div>
 
           {/* Right Side - Illustration */}
-          <Illustration isDarkMode={isDarkMode} />
+          <Illustration isDarkMode={theme === "dark"} />
         </div>
       </div>
     </div>

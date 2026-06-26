@@ -335,3 +335,113 @@
 .medflow-ai-shell .text-white\/20 {
   color: var(--mc-text-20);
 }
+
+/* Auth page tokens */
+:root {
+  --auth-card-bg: #1e293b;
+  --auth-card-border: rgba(51, 65, 85, 0.8);
+  --auth-input-bg: rgba(51, 65, 85, 0.5);
+  --auth-input-border: rgba(71, 85, 105, 1);
+  --auth-input-fg: #ffffff;
+  --auth-input-placeholder: rgba(148, 163, 184, 1);
+  --auth-label: rgba(148, 163, 184, 1);
+  --auth-muted: rgba(148, 163, 184, 1);
+  --auth-fg: #ffffff;
+  --auth-accent: #60a5fa;
+  --auth-accent-hover: #93c5fd;
+  --auth-toggle-bg: rgba(30, 41, 59, 1);
+  --auth-toggle-hover: rgba(51, 65, 85, 1);
+  --auth-toggle-text: #facc15;
+  --auth-inactive-bg: rgba(51, 65, 85, 0.4);
+  --auth-inactive-text: rgba(203, 213, 225, 1);
+  --auth-checkbox-bg: rgba(51, 65, 85, 1);
+  --auth-checkbox-border: rgba(75, 85, 99, 1);
+  --auth-icon-muted: rgba(100, 116, 139, 1);
+  --auth-icon-hover: rgba(203, 213, 225, 1);
+}
+
+[data-theme="light"] {
+  --auth-card-bg: #ffffff;
+  --auth-card-border: rgba(229, 231, 235, 1);
+  --auth-input-bg: #ffffff;
+  --auth-input-border: rgba(203, 213, 225, 1);
+  --auth-input-fg: #111827;
+  --auth-input-placeholder: rgba(156, 163, 175, 1);
+  --auth-label: rgba(75, 85, 99, 1);
+  --auth-muted: rgba(75, 85, 99, 1);
+  --auth-fg: #111827;
+  --auth-accent: #2563eb;
+  --auth-accent-hover: #1d4ed8;
+  --auth-toggle-bg: rgba(229, 231, 235, 1);
+  --auth-toggle-hover: rgba(209, 213, 219, 1);
+  --auth-toggle-text: rgba(75, 85, 99, 1);
+  --auth-inactive-bg: rgba(229, 231, 235, 1);
+  --auth-inactive-text: rgba(75, 85, 99, 1);
+  --auth-checkbox-bg: transparent;
+  --auth-checkbox-border: rgba(209, 213, 219, 1);
+  --auth-icon-muted: rgba(156, 163, 175, 1);
+  --auth-icon-hover: rgba(75, 85, 99, 1);
+}
+
+.medflow-auth-shell {
+  background: var(--mc-bg) !important;
+  color: var(--mc-fg);
+}
+
+.medflow-auth-shell .medflow-auth-card {
+  background: var(--auth-card-bg) !important;
+  border: 1px solid var(--auth-card-border) !important;
+}
+
+.medflow-auth-input {
+  background: var(--auth-input-bg) !important;
+  border-color: var(--auth-input-border) !important;
+  color: var(--auth-input-fg) !important;
+}
+
+.medflow-auth-input::placeholder {
+  color: var(--auth-input-placeholder) !important;
+}
+
+.medflow-auth-label {
+  color: var(--auth-label);
+}
+
+.medflow-auth-muted {
+  color: var(--auth-muted);
+}
+
+.medflow-auth-accent {
+  color: var(--auth-accent);
+}
+
+.medflow-auth-accent:hover {
+  color: var(--auth-accent-hover);
+}
+
+.medflow-auth-toggle {
+  background: var(--auth-toggle-bg);
+  color: var(--auth-toggle-text);
+}
+
+.medflow-auth-toggle:hover {
+  background: var(--auth-toggle-hover);
+}
+
+.medflow-auth-inactive {
+  background: var(--auth-inactive-bg);
+  color: var(--auth-inactive-text);
+}
+
+.medflow-auth-checkbox {
+  background: var(--auth-checkbox-bg);
+  border-color: var(--auth-checkbox-border);
+}
+
+.medflow-auth-icon-muted {
+  color: var(--auth-icon-muted);
+}
+
+.medflow-auth-icon-muted:hover {
+  color: var(--auth-icon-hover);
+}
