@@ -1,414 +1,416 @@
-  "use client";
+"use client";
 
-  import { useState } from "react";
-  import { zodResolver } from "@hookform/resolvers/zod";
-  import { useForm, useWatch } from "react-hook-form";
-  import Link from "next/link";
-  import { useRouter } from "next/navigation";
-  import { Eye, EyeOff, Mail, Phone, Stethoscope, User } from "lucide-react";
-  import { Button } from "@/components/ui/button";
-  import { Card, CardContent, CardHeader } from "@/components/ui/card";
-  import { Input } from "@/components/ui/input";
-  import { registerUser } from "@/services/AuthService";
-  import { registerSchema, type RegisterFormValues } from "@/lib/validations/auth";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Phone, Stethoscope } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { registerUser } from "@/services/AuthService";
+import { registerSchema, type RegisterFormValues } from "@/lib/validations/auth";
+import { useTheme } from "@/hooks/useTheme";
+import Illustration from "../Illustration";
+import SocialLogin from "../socialLogin";
 
-  function PasswordStrength({ password }: { password: string }) {
-    const getStrength = (value: string) => {
-      let score = 0;
-      if (value.length >= 8) score++;
-      if (/[A-Z]/.test(value)) score++;
-      if (/[0-9]/.test(value)) score++;
-      if (/[^A-Za-z0-9]/.test(value)) score++;
-      return score;
-    };
+type UserRole = "doctor" | "patient";
 
-    if (!password) return null;
+export default function RegisterForm() {
+  const router = useRouter();
+  const { isDark: isDarkMode, toggleTheme } = useTheme();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [selectedRole, setSelectedRole] = useState<UserRole>("patient");
 
-    const score = getStrength(password);
-    const labels = ["", "Weak", "Fair", "Good", "Strong"];
-    const colors = ["", "#EF4444", "#F59E0B", "#10B981", "#10B981"];
-    const segColors = [
-      "bg-white/10",
-      "bg-red-500",
-      "bg-amber-400",
-      "bg-emerald-400",
-      "bg-emerald-400",
-    ];
+  const radioClass = (role: UserRole) =>
+    `flex-1 flex items-center justify-center gap-2 rounded-lg h-11 text-sm font-semibold transition-all ${
+      selectedRole === role
+        ? role === "doctor"
+          ? "bg-orange-500 text-white shadow-lg shadow-orange-500/40"
+          : "bg-blue-600 text-white shadow-lg shadow-blue-600/40"
+        : isDarkMode
+          ? "bg-gray-700/40 text-gray-300 hover:opacity-80"
+          : "bg-gray-200 text-gray-600 hover:opacity-80"
+    }`;
 
-    return (
-      <div className="mt-2">
-        <div className="flex gap-1">
-          {[0, 1, 2, 3].map((index) => (
-            <div
-              key={index}
-              className={`h-[3px] flex-1 rounded-full transition-all duration-300 ${
-                index < score ? segColors[score] : "bg-white/10"
-              }`}
-            />
-          ))}
-        </div>
-        <p className="text-[11px] mt-1" style={{ color: colors[score] }}>
-          {labels[score]}
-        </p>
-      </div>
-    );
-  }
+  const labelColor = isDarkMode ? "text-gray-400" : "text-gray-600";
+  const inputClass =
+    "rounded-lg h-11 border transition-all " +
+    (isDarkMode
+      ? "border-gray-700 bg-gray-700/50 text-white placeholder:text-gray-500 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+      : "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:border-blue-500 focus-visible:ring-blue-500/20");
 
-  export default function RegisterForm() {
-    const router = useRouter();
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [googleLoading, setGoogleLoading] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [submitError, setSubmitError] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      mobile: "",
+      role: "patient",
+      terms: false,
+    },
+  });
 
-    const {
-      register,
-      control,
-      handleSubmit,
-      formState: { errors },
-    } = useForm<RegisterFormValues>({
-      resolver: zodResolver(registerSchema),
-      defaultValues: {
-        fullName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        mobile: "",
-        role: "patient",
-        terms: false,
-      },
+  const onSubmit = async (data: RegisterFormValues) => {
+    setIsLoading(true);
+    setSubmitError("");
+    setSuccessMessage("");
+
+    const result = await registerUser({
+      fullName: data.fullName,
+      email: data.email,
+      password: data.password,
+      mobile: data.mobile,
+      role: selectedRole,
     });
 
-    const password = useWatch({ control, name: "password" }) ?? "";
-    const termsAccepted = useWatch({ control, name: "terms" }) ?? false;
+    setIsLoading(false);
 
-    const onSubmit = async (data: RegisterFormValues) => {
-      setIsLoading(true);
-      setSubmitError("");
-      setSuccessMessage("");
+    if (result instanceof Error) {
+      setSubmitError(result.message || "Unable to create account.");
+      return;
+    }
 
-      const result = await registerUser({
-        fullName: data.fullName,
-        email: data.email,
-        password: data.password,
-        mobile: data.mobile,
-        role: data.role,
-      });
+    if (!result.success) {
+      setSubmitError(result.message || "Unable to create account.");
+      return;
+    }
 
-      setIsLoading(false);
+    setSuccessMessage(result.message || "Registration successful. You can sign in now.");
+    window.setTimeout(() => {
+      router.push("/login");
+    }, 1000);
+  };
 
-      if (result instanceof Error) {
-        setSubmitError(result.message || "Unable to create account.");
-        return;
-      }
-
-      if (!result.success) {
-        setSubmitError(result.message || "Unable to create account.");
-        return;
-      }
-
-      setSuccessMessage(result.message || "Registration successful. You can sign in now.");
-      window.setTimeout(() => {
-        router.push("/login");
-      }, 1000);
-    };
-
-    const handleGoogleRegister = async () => {
-      setGoogleLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setGoogleLoading(false);
-    };
-
-    const roles = [
-      { value: "patient", label: "Patient", icon: "👤" },
-      { value: "doctor", label: "Doctor", icon: "🩺" },
-      { value: "admin", label: "Admin", icon: "🛡️" },
-    ] as const;
-
-    return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-8">
-        <div className="absolute inset-0 bg-[#060d1f]" />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(ellipse 80% 60% at 10% 20%, rgba(37,99,235,0.55) 0%, transparent 60%),
-              radial-gradient(ellipse 60% 50% at 90% 80%, rgba(16,185,129,0.4) 0%, transparent 55%),
-              radial-gradient(ellipse 50% 60% at 60% 10%, rgba(139,92,246,0.35) 0%, transparent 55%),
-              radial-gradient(ellipse 40% 40% at 20% 85%, rgba(6,182,212,0.3) 0%, transparent 50%)
-            `,
-          }}
-        />
-
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-
-        <div
-          className="absolute -top-20 -left-20 w-72 h-72 rounded-full opacity-25 blur-[60px] animate-[float1_8s_ease-in-out_infinite]"
-          style={{ background: "#2563EB" }}
-        />
-        <div
-          className="absolute -bottom-16 -right-16 w-60 h-60 rounded-full opacity-25 blur-[60px] animate-[float2_10s_ease-in-out_infinite]"
-          style={{ background: "#10B981" }}
-        />
-        <div
-          className="absolute top-1/2 left-2/3 w-48 h-48 rounded-full opacity-20 blur-[60px] animate-[float3_12s_ease-in-out_infinite]"
-          style={{ background: "#8B5CF6" }}
-        />
-
-        <div
-          className="absolute top-[14%] left-6 hidden lg:flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs backdrop-blur-md border border-white/10 z-10"
-          style={{ background: "rgba(255,255,255,0.07)" }}
+  return (
+    <div
+      className={`min-h-screen flex items-center justify-center transition-colors duration-300 medflow-ai-grid relative overflow-hidden ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-50"
+      }`}
+      style={{ backgroundSize: "40px 40px" }}
+    >
+      <div className="w-full max-w-5xl mx-auto px-4">
+        <button
+          onClick={toggleTheme}
+          className={`fixed top-6 right-6 z-20 p-2 rounded-lg transition-colors duration-200 ${
+            isDarkMode
+              ? "bg-gray-800 text-yellow-400 hover:bg-gray-700"
+              : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+          }`}
+          aria-label="Toggle theme"
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-          <div>
-            <p className="text-white font-medium text-[12px]">Free to join</p>
-            <p className="text-white/45 text-[11px]">No credit card required</p>
-          </div>
-        </div>
+          {isDarkMode ? "☀️" : "🌙"}
+        </button>
+        {/* Main Card */}
         <div
-          className="absolute bottom-[14%] right-6 hidden lg:flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs backdrop-blur-md border border-white/10 z-10"
-          style={{ background: "rgba(255,255,255,0.07)" }}
+          className={`rounded-2xl overflow-hidden shadow-2xl flex transition-all duration-300 ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          }`}
         >
-          <span className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
-          <div>
-            <p className="text-white font-medium text-[12px]">HIPAA Compliant</p>
-            <p className="text-white/45 text-[11px]">End-to-end encrypted</p>
-          </div>
-        </div>
-
-        <div className="relative z-10 w-full max-w-md px-4">
-          <div className="flex flex-col items-center mb-6">
-            <div
-              className="flex items-center gap-2 px-4 py-2 rounded-[8px] border border-white/12 backdrop-blur-md mb-2"
-              style={{ background: "rgba(255,255,255,0.07)" }}
-            >
-              <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
-                <Stethoscope className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-white font-semibold text-[15px] tracking-tight">
-                <span className="text-blue-400">Medflow</span>AI
-              </span>
-            </div>
-            <p className="text-white/40 text-[12px]">Your trusted telemedicine platform</p>
-          </div>
-
-          <Card
-            className="rounded-[8px] border border-white/12 shadow-2xl"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              backdropFilter: "blur(20px)",
-              boxShadow:
-                "0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)",
-            }}
+          {/* Left Side - Form */}
+          <div
+            className={`flex-1 p-10 lg:p-12 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
           >
-            <CardHeader className="pb-0 pt-7 px-7">
-              <div className="flex flex-col items-center gap-1 text-center">
-                <h1 className="text-xl font-semibold text-white">Create your account</h1>
-              </div>
-            </CardHeader>
-
-            <CardContent className="px-7 pt-5 pb-7">
-              <button
-                type="button"
-                onClick={handleGoogleRegister}
-                disabled={googleLoading}
-                className="w-full flex items-center justify-center gap-3 px-4 py-[10px] rounded-[8px] border border-white/12 text-white/75 text-[13px] font-medium transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] disabled:opacity-60 mb-5"
-                style={{ background: "rgba(255,255,255,0.06)" }}
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-                {googleLoading ? "Connecting..." : "Sign up with Google"}
-              </button>
-
-              <div className="flex items-center gap-3 mb-5">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-white/30 text-[11.5px]">or register with email</span>
-                <div className="flex-1 h-px bg-white/10" />
-              </div>
-
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {submitError ? (
-                  <div className="rounded-[8px] border border-red-400/25 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-                    {submitError}
-                  </div>
-                ) : null}
-
-                {successMessage ? (
-                  <div className="rounded-[8px] border border-emerald-400/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
-                    {successMessage}
-                  </div>
-                ) : null}
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
-                      Full name
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        placeholder="John Doe"
-                        className="rounded-[8px] border-white/[0.12] bg-white/[0.07] text-white placeholder:text-white/25 h-11 px-4"
-                        {...register("fullName")}
-                      />
-                      <User className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    </div>
-                    {errors.fullName && (
-                      <p className="text-xs text-red-400 mt-1">{errors.fullName.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
-                      Email address
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="email"
-                        placeholder="you@example.com"
-                        className="rounded-[8px] border-white/[0.12] bg-white/[0.07] text-white placeholder:text-white/25 h-11 px-4"
-                        {...register("email")}
-                      />
-                      <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    </div>
-                    {errors.email && (
-                      <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
-                    )}
-                  </div>
+            {/* Logo */}
+            <div className="mb-8 text-center">
+              <div className="flex items-center gap-2 mb-2 justify-center">
+                <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+                  <Stethoscope className="w-4 h-4 text-white" />
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create password"
-                        className="rounded-[8px] border-white/[0.12] bg-white/[0.07] text-white placeholder:text-white/25 h-11 px-4 pr-12"
-                        {...register("password")}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((current) => !current)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    {errors.password && (
-                      <p className="text-xs text-red-400 mt-1">{errors.password.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
-                      Confirm password
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm password"
-                        className="rounded-[8px] border-white/[0.12] bg-white/[0.07] text-white placeholder:text-white/25 h-11 px-4 pr-12"
-                        {...register("confirmPassword")}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword((current) => !current)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
-                      >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    {errors.confirmPassword && (
-                      <p className="text-xs text-red-400 mt-1">{errors.confirmPassword.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
-                      Mobile
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="tel"
-                        placeholder="1234567890"
-                        className="rounded-[8px] border-white/[0.12] bg-white/[0.07] text-white placeholder:text-white/25 h-11 px-4"
-                        {...register("mobile")}
-                      />
-                      <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    </div>
-                    {errors.mobile && (
-                      <p className="text-xs text-red-400 mt-1">{errors.mobile.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block mb-1.5 text-[11px] font-medium text-white/60 tracking-wide uppercase">
-                      Role
-                    </label>
-                    <select
-                      className="mt-2 w-full rounded-[8px] border border-white/[0.12] bg-white/[0.07] text-white px-4 py-3"
-                      {...register("role")}
-                    >
-                      <option value="patient">Patient</option>
-                      <option value="doctor">Doctor</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                    {errors.role && (
-                      <p className="text-xs text-red-400 mt-1">{errors.role.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 text-sm text-white/70">
-                  <input
-                    type="checkbox"
-                    className="mt-2 h-4 w-4 rounded border-white/20 bg-slate-950 text-sky-500 focus:ring-sky-400"
-                    {...register("terms")}
-                  />
-                  <span>
-                    I agree to the <span className="text-sky-400">terms and conditions</span>.
-                  </span>
-                </div>
-                {errors.terms && (
-                  <p className="text-xs text-red-400">{errors.terms.message}</p>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full rounded-[8px] bg-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 hover:bg-sky-400 transition-all"
+                <span
+                  className={`text-xl font-bold tracking-tight ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
                 >
-                  {isLoading ? "Creating account..." : "Create account"}
-                </Button>
-              </form>
-
-              <p className="mt-6 text-center text-sm text-white/40">
-                Already have an account?{' '}
-                <Link href="/login" className="text-sky-400 hover:text-sky-300">
-                  Sign in
-                </Link>
+                  <span className={isDarkMode ? "text-blue-400" : "text-blue-600"}>
+                    Medflow
+                  </span>
+                  AI
+                </span>
+              </div>
+              <p
+                className={`text-xs tracking-wide ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                Your trusted telemedicine platform
               </p>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Heading */}
+            <div className="mb-8 text-center">
+              <h1
+                className={`text-2xl font-bold mb-2 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Create your account
+              </h1>
+              <p
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+              >
+                Start your journey with MedflowAI
+              </p>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {submitError && (
+                <div
+                  className={`rounded-lg border px-4 py-3 text-sm ${
+                    isDarkMode
+                      ? "border-red-400/25 bg-red-500/10 text-red-300"
+                      : "border-red-400/50 bg-red-50 text-red-700"
+                  }`}
+                >
+                  {submitError}
+                </div>
+              )}
+
+              {successMessage && (
+                <div
+                  className={`rounded-lg border px-4 py-3 text-sm ${
+                    isDarkMode
+                      ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-300"
+                      : "border-emerald-400/50 bg-emerald-50 text-emerald-700"
+                  }`}
+                >
+                  {successMessage}
+                </div>
+              )}
+
+              {/* Full Name */}
+              <div>
+                <label
+                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
+                >
+                  Full name
+                </label>
+                <Input
+                  type="text"
+                  placeholder="John Doe"
+                  className={inputClass}
+                  {...register("fullName")}
+                />
+                {errors.fullName && (
+                  <p className="text-xs text-red-500 mt-1.5">{errors.fullName.message}</p>
+                )}
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label
+                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
+                >
+                  Phone number
+                </label>
+                <div className="relative">
+                  <Input
+                    type="tel"
+                    placeholder="1234567890"
+                    className={`${inputClass} pr-10`}
+                    {...register("mobile")}
+                  />
+                  <Phone className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`} />
+                </div>
+                {errors.mobile && (
+                  <p className="text-xs text-red-500 mt-1.5">{errors.mobile.message}</p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label
+                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
+                >
+                  Email address
+                </label>
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  className={inputClass}
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-1.5">{errors.email.message}</p>
+                )}
+              </div>
+
+              {/* Role (radio) */}
+              <div>
+                <label
+                  htmlFor="role"
+                  className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
+                >
+                  Register as
+                </label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole("patient")}
+                    className={radioClass("patient")}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      checked={selectedRole === "patient"}
+                      readOnly
+                      className="h-4 w-4 cursor-pointer accent-blue-600"
+                    />
+                    Patient
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole("doctor")}
+                    className={radioClass("doctor")}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      checked={selectedRole === "doctor"}
+                      readOnly
+                      className="h-4 w-4 cursor-pointer accent-orange-500"
+                    />
+                    Doctor
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Password */}
+                <div>
+                  <label
+                    className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
+                  >
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className={`${inputClass} pr-10`}
+                      {...register("password")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+                        isDarkMode
+                          ? "text-gray-500 hover:text-gray-300"
+                          : "text-gray-400 hover:text-gray-600"
+                      }`}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-xs text-red-500 mt-1.5">{errors.password.message}</p>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label
+                    className={`block mb-2 text-xs font-semibold tracking-wide uppercase ${labelColor}`}
+                  >
+                    Confirm password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className={`${inputClass} pr-10`}
+                      {...register("confirmPassword")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((current) => !current)}
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+                        isDarkMode
+                          ? "text-gray-500 hover:text-gray-300"
+                          : "text-gray-400 hover:text-gray-600"
+                      }`}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-xs text-red-500 mt-1.5">{errors.confirmPassword.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Terms */}
+              <div className="flex items-start gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  className={`mt-1 rounded cursor-pointer accent-blue-500 ${isDarkMode ? "bg-gray-700 border-gray-600" : ""}`}
+                  {...register("terms")}
+                />
+                <span
+                  className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
+                  I agree to the{" "}
+                  <span className={isDarkMode ? "text-blue-400" : "text-blue-600"}>
+                    terms and conditions
+                  </span>
+                </span>
+              </div>
+              {errors.terms && (
+                <p className="text-xs text-red-500">{errors.terms.message}</p>
+              )}
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className={`w-full h-11 rounded-md font-semibold text-sm transition-all cursor-pointer ${
+                  isDarkMode
+                    ? "bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-900/30"
+                    : "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg shadow-amber-600/30"
+                }`}
+              >
+                {isLoading ? "Creating account..." : "Create account"}
+              </Button>
+            </form>
+
+            {/* Sign In Link */}
+            <p
+              className={`text-center text-sm mt-6 ${
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className={`font-semibold transition-colors ${
+                  isDarkMode
+                    ? "text-blue-400 hover:text-blue-300"
+                    : "text-blue-600 hover:text-blue-700"
+                }`}
+              >
+                Log in
+              </Link>
+            </p>
+
+            {/* Social Login */}
+            <SocialLogin isDarkMode={isDarkMode} />
+          </div>
+
+          {/* Right Side - Illustration */}
+          <Illustration isDarkMode={isDarkMode} />
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}

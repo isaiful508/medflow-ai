@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const roles = ["patient", "doctor", "admin"] as const;
+const roles = ["patient", "doctor"] as const;
 
 export const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address"),
