@@ -85,7 +85,7 @@ export default function RegisterForm() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center transition-colors duration-300 medflow-auth-shell medflow-ai-grid relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center transition-colors duration-300 medflow-ai-grid relative overflow-hidden"
       style={{ backgroundSize: "60px 60px" }}
     >
       <div className="w-full max-w-5xl mx-auto px-4">
@@ -108,7 +108,7 @@ export default function RegisterForm() {
                 <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
                   <Stethoscope className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xl font-bold tracking-tight">
+                <span className="text-xl font-bold tracking-tight text-(--mc-fg)">
                   <span className="medflow-auth-accent">Medflow</span>AI
                 </span>
               </div>

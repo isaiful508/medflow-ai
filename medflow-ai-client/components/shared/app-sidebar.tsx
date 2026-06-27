@@ -109,7 +109,7 @@ export function AppSidebar({
             <p className="text-sm font-semibold tracking-wide">
               Medflow<span style={{ color: "var(--mc-accent)" }}>AI</span>
             </p>
-            <p className="text-[11px] text-white/40">Telemedicine Platform</p>
+            <p className="text-[11px] text-(--mc-text-40)">Telemedicine Platform</p>
           </div>
         ) : null}
         <SidebarTrigger onClick={() => setCollapsed((prev) => !prev)}>
@@ -155,12 +155,12 @@ export function AppSidebar({
         {!isLoading && !user ? (
           <Link
             href="/login"
-            className={`group relative flex items-center gap-3 rounded-2xl border border-white/15 bg-linear-to-br from-white/8 to-white/3 px-3 py-3 text-sm text-white/75 transition duration-300 hover:border-white/25 hover:bg-linear-to-br hover:from-white/12 hover:to-white/6 hover:text-white hover:shadow-lg hover:shadow-blue-500/10 ${
+            className={`group relative flex items-center gap-3 rounded-2xl border border-(--mc-border) bg-(--mc-soft) px-3 py-3 text-sm text-(--mc-text-70) transition duration-300 hover:border-(--mc-accent)/25 hover:bg-(--mc-accent)/10 hover:text-(--mc-fg) hover:shadow-lg hover:shadow-blue-500/10 ${
               collapsed ? "justify-center" : ""
             }`}
           >
             <div className="relative">
-              <CircleUserRound className="size-5 text-white/70 transition group-hover:text-white" />
+              <CircleUserRound className="size-5 text-(--mc-text-70) transition group-hover:text-(--mc-fg)" />
             </div>
             {!collapsed ? <span className="font-medium">Sign in</span> : null}
           </Link>
@@ -172,7 +172,7 @@ export function AppSidebar({
               className={`group relative w-full overflow-hidden rounded-2xl border transition duration-300 ${
                 userMenuOpen
                   ? "border-blue-400/30 bg-linear-to-br from-blue-500/20 to-blue-600/10 shadow-lg shadow-blue-500/20"
-                  : "border-white/15 bg-linear-to-br from-white/8 to-white/3 hover:border-white/25 hover:bg-linear-to-br hover:from-white/12 hover:to-white/6 hover:shadow-lg hover:shadow-blue-500/10"
+                  : "border-(--mc-border) bg-(--mc-soft) hover:border-(--mc-accent)/25 hover:bg-(--mc-accent)/10 hover:shadow-lg hover:shadow-blue-500/10"
               }`}
             >
               <div className="flex items-center gap-3 px-3 py-3 text-left">
@@ -185,37 +185,37 @@ export function AppSidebar({
                     className="h-11 w-11 rounded-xl object-cover ring-2 ring-white/10 transition group-hover:ring-white/20"
                   />
                 ) : (
-                  <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 via-blue-600 to-cyan-500 font-semibold text-white shadow-lg shadow-blue-500/30 ring-1 ring-white/20 transition group-hover:shadow-blue-500/50 group-hover:ring-white/40">
+                  <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 via-blue-600 to-cyan-500 font-semibold text-white shadow-lg shadow-blue-500/30 ring-1 ring-(--mc-accent)/20 transition group-hover:shadow-blue-500/50 group-hover:ring-(--mc-accent)/40">
                     <span className="text-sm">{userInitials}</span>
                   </div>
                 )}
                 {!collapsed ? (
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-white">{userName}</p>
-                    <p className="text-[11px] text-white/50 transition group-hover:text-white/70">{userRole.charAt(0).toUpperCase()}{userRole.slice(1)}</p>
+                    <p className="truncate text-sm font-semibold text-(--mc-fg)">{userName}</p>
+                    <p className="text-[11px] text-(--mc-text-50) transition group-hover:text-(--mc-text-70)">{userRole.charAt(0).toUpperCase()}{userRole.slice(1)}</p>
                   </div>
                 ) : null}
                 {!collapsed ? (
-                  <div className="flex items-center justify-center rounded-lg bg-white/5 p-1.5 transition group-hover:bg-white/10">
-                    <Menu className="size-4 text-white/50 transition group-hover:text-white/70" />
+                  <div className="flex items-center justify-center rounded-lg bg-(--mc-soft) p-1.5 transition group-hover:bg-(--mc-accent)/10">
+                    <Menu className="size-4 text-(--mc-text-50) transition group-hover:text-(--mc-text-70)" />
                   </div>
                 ) : null}
               </div>
             </button>
 
             {userMenuOpen ? (
-              <div className="absolute left-0 bottom-full mb-3 w-full space-y-1 overflow-hidden rounded-2xl border border-white/15 bg-linear-to-b from-slate-900/80 to-slate-950/90 p-2 shadow-2xl shadow-slate-900/50 backdrop-blur-xl">
+              <div className="absolute left-0 bottom-full mb-3 w-full space-y-1 overflow-hidden rounded-2xl border border-(--mc-border) bg-(--mc-card) p-2 shadow-2xl shadow-black/50 backdrop-blur-xl">
                 <Link
                   href="/profile"
                   onClick={() => setUserMenuOpen(false)}
-                  className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 transition duration-300 hover:bg-linear-to-r hover:from-blue-500/20 hover:to-blue-600/10 hover:text-white"
+                  className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-(--mc-text-70) transition duration-300 hover:bg-(--mc-accent)/15 hover:text-(--mc-fg)"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 transition group-hover/item:bg-blue-500/30">
                     <CircleUserRound className="size-4 text-blue-300" />
                   </div>
                   <span className="font-medium">View Profile</span>
                 </Link>
-                <div className="my-1 h-px bg-linear-to-r from-white/0 via-white/10 to-white/0" />
+                <div className="my-1 h-px bg-linear-to-r from-transparent via-(--mc-border) to-transparent" />
                 <button
                   type="button"
                   onClick={async () => {
@@ -224,7 +224,7 @@ export function AppSidebar({
                     setUserMenuOpen(false);
                     router.push("/login");
                   }}
-                  className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-white/75 transition duration-300 hover:bg-linear-to-r hover:from-red-500/20 hover:to-rose-600/10 hover:text-red-200"
+                  className="group/item flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-(--mc-text-70) transition duration-300 hover:bg-red-500/15 hover:text-red-300"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/20 transition group-hover/item:bg-red-500/30">
                     <span className="text-xs font-bold text-red-300">⎋</span>

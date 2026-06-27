@@ -32,7 +32,7 @@ export function GlassCard({
 }) {
   return (
     <div
-      className={`medflow-ai-card rounded-3xl border border-white/10 bg-white/6 backdrop-blur-xl ${className}`}
+      className={`rounded-3xl border border-(--mc-border) bg-(--mc-card) backdrop-blur-xl ${className}`}
     >
       {children}
     </div>
@@ -47,9 +47,9 @@ export function CardHeader({
   action?: string;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+    <div className="flex items-center justify-between border-b border-(--mc-border) px-5 py-4">
       <p className="text-sm font-medium">{title}</p>
-      {action ? <button className="text-xs text-blue-400">{action}</button> : null}
+      {action ? <button className="text-xs text-(--mc-accent)">{action}</button> : null}
     </div>
   );
 }
@@ -76,18 +76,18 @@ export function QuickActionButton({
 
 export function ProfileField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/4 p-4">
-      <p className="text-xs uppercase tracking-[0.18em] text-white/35">{label}</p>
-      <p className="mt-2 text-sm text-white/85">{value}</p>
+    <div className="rounded-2xl border border-(--mc-border) bg-(--mc-soft) p-4">
+      <p className="text-xs uppercase tracking-[0.18em] text-(--mc-text-30)">{label}</p>
+      <p className="mt-2 text-sm text-(--mc-text-80)">{value}</p>
     </div>
   );
 }
 
 export function HistoryItem({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/4 p-4">
+    <div className="rounded-2xl border border-(--mc-border) bg-(--mc-soft) p-4">
       <p className="text-sm font-medium">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-white/55">{desc}</p>
+      <p className="mt-2 text-sm leading-6 text-(--mc-text-50)">{desc}</p>
     </div>
   );
 }
@@ -103,12 +103,12 @@ export function MiniChatBubble({
 }) {
   return (
     <div className={self ? "text-right" : ""}>
-      <p className={`mb-1 text-[11px] ${self ? "text-white/35" : "text-blue-300"}`}>
+      <p className={`mb-1 text-[11px] ${self ? "text-(--mc-text-30)" : "text-(--mc-accent)"}`}>
         {who}
       </p>
       <div
         className={`inline-block max-w-full rounded-2xl px-3 py-2 text-sm leading-6 ${
-          self ? "bg-blue-600 text-white" : "bg-white/8 text-white/80"
+          self ? "bg-(--mc-accent) text-white" : "bg-(--mc-soft) text-(--mc-text-80)"
         }`}
       >
         {text}
@@ -131,7 +131,7 @@ export function CircleButton({
       ? "bg-rose-500/15 text-rose-400"
       : tone === "end"
         ? "bg-rose-500 text-white"
-        : "bg-white/10 text-white/80";
+        : "bg-(--mc-soft) text-(--mc-text-80)";
 
   return (
     <button

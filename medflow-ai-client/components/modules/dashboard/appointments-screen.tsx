@@ -42,7 +42,7 @@ export function AppointmentsScreen({
               className={`relative rounded-2xl border px-5 py-5 text-center transition ${
                 selectedDoctor === doctor.id
                   ? "border-blue-500 bg-blue-500/12"
-                  : "border-white/10 bg-white/3 hover:border-blue-500/40 hover:bg-blue-500/5"
+                  : "border-(--mc-border) bg-(--mc-soft) hover:border-blue-500/40 hover:bg-blue-500/5"
               }`}
             >
               {selectedDoctor === doctor.id ? (
@@ -52,7 +52,7 @@ export function AppointmentsScreen({
               ) : null}
               <Avatar initials={doctor.initials} tone={doctor.tone} size="md" center />
               <p className="mt-3 text-sm font-medium">{doctor.name}</p>
-              <p className="text-xs text-white/45">{doctor.specialty}</p>
+              <p className="text-xs text-(--mc-text-40)">{doctor.specialty}</p>
               <div className="mt-3 flex items-center justify-center gap-1 text-amber-300">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star
@@ -70,17 +70,17 @@ export function AppointmentsScreen({
 
       <div className="grid gap-4 xl:grid-cols-2">
         <GlassCard>
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-            <button type="button" className="text-white/50 hover:text-white">
+          <div className="flex items-center justify-between border-b border-(--mc-border) px-5 py-4">
+            <button type="button" className="text-(--mc-text-50) hover:text-(--mc-fg)">
               <ChevronLeft className="size-4" />
             </button>
             <p className="text-sm font-medium">April 2026</p>
-            <button type="button" className="text-white/50 hover:text-white">
+            <button type="button" className="text-(--mc-text-50) hover:text-(--mc-fg)">
               <ChevronRight className="size-4" />
             </button>
           </div>
           <div className="p-5">
-            <div className="mb-3 grid grid-cols-7 gap-2 text-center text-xs text-white/35">
+            <div className="mb-3 grid grid-cols-7 gap-2 text-center text-xs text-(--mc-text-30)">
               {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
                 <span key={day}>{day}</span>
               ))}
@@ -98,8 +98,8 @@ export function AppointmentsScreen({
                       selectedDay === day
                         ? "bg-blue-600 text-white"
                         : daysWithSlots.has(day)
-                          ? "bg-white/4 text-white/80 hover:bg-blue-500/12 hover:text-blue-300"
-                          : "bg-transparent text-white/25"
+                          ? "bg-(--mc-soft) text-(--mc-text-80) hover:bg-blue-500/12 hover:text-blue-300"
+                          : "bg-transparent text-(--mc-text-30)"
                     }`}
                   >
                     {day}
@@ -112,7 +112,7 @@ export function AppointmentsScreen({
                 ),
               )}
             </div>
-            <div className="mt-4 flex items-center gap-2 text-xs text-white/35">
+            <div className="mt-4 flex items-center gap-2 text-xs text-(--mc-text-30)">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
               Available slots
             </div>
@@ -132,10 +132,10 @@ export function AppointmentsScreen({
                   }}
                   className={`rounded-xl border px-3 py-2 text-sm transition ${
                     slot.taken
-                      ? "cursor-not-allowed border-white/5 bg-white/3 text-white/20 line-through"
+                      ? "cursor-not-allowed border-(--mc-border) bg-(--mc-soft) text-(--mc-text-30) line-through"
                       : selectedTime === slot.label
                         ? "border-blue-500 bg-blue-600 text-white"
-                        : "border-white/10 bg-white/4 text-white/70 hover:border-blue-500/50 hover:text-blue-300"
+                        : "border-(--mc-border) bg-(--mc-soft) text-(--mc-text-70) hover:border-blue-500/50 hover:text-blue-300"
                   }`}
                 >
                   {slot.label}
@@ -144,7 +144,7 @@ export function AppointmentsScreen({
             </div>
 
             <div className="mt-5 rounded-xl border border-blue-500/30 bg-blue-500/12 p-4">
-              <p className="text-xs text-white/45">Selected appointment</p>
+              <p className="text-xs text-(--mc-text-40)">Selected appointment</p>
               <p className="mt-1 text-sm font-medium">{confirmDoctor.name}</p>
               <p className="text-sm text-blue-300">{`Tue, Apr ${selectedDay} · ${selectedTime} · Video Call`}</p>
             </div>

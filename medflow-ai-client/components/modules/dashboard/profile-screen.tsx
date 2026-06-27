@@ -24,7 +24,7 @@ export function ProfileScreen({
           <Avatar initials="SJ" tone="blue" size="lg" center />
           <div className="flex-1">
             <h2 className="text-xl font-semibold">Sarah Johnson</h2>
-            <p className="mt-1 text-sm text-white/45">
+            <p className="mt-1 text-sm text-(--mc-text-40)">
               Patient ID: #MED-2024-00142 · DOB: Mar 15, 1988
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -39,14 +39,14 @@ export function ProfileScreen({
               </span>
             </div>
           </div>
-          <button type="button" className="rounded-xl border border-white/10 bg-white/6 px-4 py-2 text-sm text-white/70">
+          <button type="button" className="rounded-xl border border-(--mc-border) bg-(--mc-soft) px-4 py-2 text-sm text-(--mc-text-70)">
             Edit Profile
           </button>
         </div>
       </GlassCard>
 
       <GlassCard className="overflow-hidden">
-        <div className="flex border-b border-white/10">
+        <div className="flex border-b border-(--mc-border)">
           {[
             { id: "info", label: "Personal Information" },
             { id: "history", label: "Medical History" },
@@ -59,7 +59,7 @@ export function ProfileScreen({
               className={`border-b-2 px-5 py-4 text-sm transition ${
                 profileTab === tab.id
                   ? "border-blue-500 text-blue-400"
-                  : "border-transparent text-white/50 hover:text-white"
+                  : "border-transparent text-(--mc-text-50) hover:text-(--mc-fg)"
               }`}
             >
               {tab.label}
@@ -88,15 +88,15 @@ export function ProfileScreen({
           {profileTab === "vitals" ? (
             <div className="space-y-4">
               {profileVitals.map((vital) => (
-                <div key={vital.label} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/4 px-4 py-4">
+                <div key={vital.label} className="flex items-center gap-4 rounded-2xl border border-(--mc-border) bg-(--mc-soft) px-4 py-4">
                   <div className={`rounded-xl p-3 ${toneClass[vital.tone]}`}>
                     <VitalIcon tone={vital.tone} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-white/55">{vital.label}</p>
+                    <p className="text-sm text-(--mc-text-50)">{vital.label}</p>
                     <p className="text-lg font-semibold">{vital.value}</p>
                   </div>
-                  <p className="text-xs text-white/30">Apr 19, 2026</p>
+                  <p className="text-xs text-(--mc-text-30)">Apr 19, 2026</p>
                 </div>
               ))}
             </div>

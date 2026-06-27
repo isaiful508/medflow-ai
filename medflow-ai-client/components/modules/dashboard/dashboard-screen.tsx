@@ -28,10 +28,10 @@ export function DashboardScreen() {
               <div className={`rounded-xl p-3 ${toneClass[card.tone]}`}>
                 <StatIcon tone={card.tone} />
               </div>
-              <p className="text-sm text-white/60">{card.label}</p>
+              <p className="text-sm text-(--mc-text-60)">{card.label}</p>
             </div>
             <p className="mt-4 text-3xl font-semibold">{card.value}</p>
-            <p className="mt-2 text-xs text-white/50">{card.change}</p>
+            <p className="mt-2 text-xs text-(--mc-text-50)">{card.change}</p>
           </GlassCard>
         ))}
       </div>
@@ -43,16 +43,16 @@ export function DashboardScreen() {
             {appointments.map((appointment) => (
               <div
                 key={`${appointment.doctor}-${appointment.time}`}
-                className="flex items-center gap-4 border-b border-white/8 pb-3 last:border-b-0 last:pb-0"
+                className="flex items-center gap-4 border-b border-(--mc-border) pb-3 last:border-b-0 last:pb-0"
               >
                 <div className="min-w-14">
                   <p className="text-sm font-medium">{appointment.time}</p>
-                  <p className="text-xs text-white/40">{appointment.day}</p>
+                  <p className="text-xs text-(--mc-text-40)">{appointment.day}</p>
                 </div>
                 <Avatar initials={appointment.initials} tone={appointment.tone} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{appointment.doctor}</p>
-                  <p className="text-xs text-white/45">{appointment.specialty}</p>
+                  <p className="text-xs text-(--mc-text-40)">{appointment.specialty}</p>
                 </div>
                 <span className={`rounded-full px-3 py-1 text-xs ${toneClass[appointment.tone]}`}>
                   {appointment.mode}
@@ -97,17 +97,17 @@ export function DashboardScreen() {
               </div>
               <div>
                 <p className="text-sm font-medium text-emerald-400">Good Health</p>
-                <p className="text-xs text-white/40">Updated today</p>
+                <p className="text-xs text-(--mc-text-40)">Updated today</p>
               </div>
             </div>
 
             <div className="mt-4 space-y-3">
               {profileVitals.map((vital) => (
-                <div key={vital.label} className="flex items-center gap-3 border-t border-white/8 pt-3">
+                <div key={vital.label} className="flex items-center gap-3 border-t border-(--mc-border) pt-3">
                   <div className={`rounded-lg p-2 ${toneClass[vital.tone]}`}>
                     <VitalIcon tone={vital.tone} />
                   </div>
-                  <p className="flex-1 text-sm text-white/65">{vital.label}</p>
+                  <p className="flex-1 text-sm text-(--mc-text-60)">{vital.label}</p>
                   <p className="text-sm font-medium">{vital.value}</p>
                 </div>
               ))}
@@ -117,7 +117,7 @@ export function DashboardScreen() {
       </div>
 
       <GlassCard>
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-(--mc-border) px-5 py-4">
           <p className="text-sm font-medium">Recent Notifications</p>
           <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs text-blue-400 ring-1 ring-blue-500/30">
             4 new
@@ -136,11 +136,11 @@ export function DashboardScreen() {
                 }`}
               />
               <div>
-                <p className="text-sm leading-6 text-white/65">
-                  <strong className="font-semibold text-white">{item.title}</strong>{" "}
+                <p className="text-sm leading-6 text-(--mc-text-60)">
+                  <strong className="font-semibold text-(--mc-fg)">{item.title}</strong>{" "}
                   {item.body}
                 </p>
-                <p className="mt-1 text-xs text-white/35">{item.time}</p>
+                <p className="mt-1 text-xs text-(--mc-text-30)">{item.time}</p>
               </div>
             </div>
           ))}

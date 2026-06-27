@@ -24,7 +24,7 @@ export function AnalyticsScreen({
             {bars.map((value, index) => (
               <div key={index} className="flex flex-1 flex-col items-center gap-3">
                 <div className="w-full rounded-t-2xl bg-linear-to-t from-blue-700 to-sky-400" style={{ height: `${value * 2.2}px` }} />
-                <span className="text-xs text-white/35">{["M", "T", "W", "T", "F", "S", "S"][index]}</span>
+                <span className="text-xs text-(--mc-text-30)">{["M", "T", "W", "T", "F", "S", "S"][index]}</span>
               </div>
             ))}
           </div>
@@ -37,9 +37,9 @@ export function AnalyticsScreen({
               <div key={specialty.label}>
                 <div className="mb-2 flex items-center justify-between text-sm">
                   <span>{specialty.label}</span>
-                  <span className="text-white/45">{specialty.value}%</span>
+                  <span className="text-(--mc-text-40)">{specialty.value}%</span>
                 </div>
-                <div className="h-2 rounded-full bg-white/8">
+                <div className="h-2 rounded-full bg-(--mc-soft)">
                   <div
                     className={`h-2 rounded-full ${specialty.tone === "blue"
                         ? "bg-blue-500"
@@ -57,13 +57,13 @@ export function AnalyticsScreen({
       </div>
 
       <GlassCard className="overflow-hidden">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-(--mc-border) px-5 py-4">
           <p className="text-sm font-medium">Recent Patients</p>
-          <span className="text-xs text-white/35">Search filters this list</span>
+          <span className="text-xs text-(--mc-text-30)">Search filters this list</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
-            <thead className="text-xs text-white/35">
+            <thead className="text-xs text-(--mc-text-30)">
               <tr>
                 <th className="px-5 py-4 font-medium">Patient</th>
                 <th className="px-5 py-4 font-medium">Issue</th>
@@ -72,16 +72,16 @@ export function AnalyticsScreen({
             </thead>
             <tbody>
               {patients.map((patient) => (
-                <tr key={patient.name} className="border-t border-white/8">
+                <tr key={patient.name} className="border-t border-(--mc-border)">
                   <td className="px-5 py-4">{patient.name}</td>
-                  <td className="px-5 py-4 text-white/60">{patient.issue}</td>
+                  <td className="px-5 py-4 text-(--mc-text-60)">{patient.issue}</td>
                   <td className="px-5 py-4">
                     <span
                       className={`rounded-full px-3 py-1 text-xs ${patient.status === "Active"
                           ? "bg-emerald-500/15 text-emerald-400"
                           : patient.status === "Pending"
                             ? "bg-amber-500/15 text-amber-400"
-                            : "bg-white/8 text-white/60"
+                            : "bg-(--mc-soft) text-(--mc-text-60)"
                         }`}
                     >
                       {patient.status}

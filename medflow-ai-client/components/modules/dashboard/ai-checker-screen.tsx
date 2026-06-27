@@ -26,7 +26,7 @@ export function AiCheckerScreen({
   return (
     <div className="grid h-[calc(100vh-7.5rem)] gap-4 xl:grid-cols-[1fr_240px]">
       <GlassCard className="flex min-h-0 flex-col overflow-hidden">
-        <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
+        <div className="flex items-center gap-3 border-b border-(--mc-border) px-5 py-4">
           <div className="rounded-full bg-blue-500/20 p-3 text-blue-400">
             <Bot className="size-4" />
           </div>
@@ -51,36 +51,36 @@ export function AiCheckerScreen({
                 className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-6 ${
                   message.role === "user"
                     ? "rounded-br-sm bg-blue-600 text-white"
-                    : "rounded-bl-sm bg-white/8 text-white/85"
+                    : "rounded-bl-sm bg-(--mc-soft) text-(--mc-text-80)"
                 }`}
               >
                 {message.text}
               </div>
-              <p className="text-[11px] text-white/35">{message.meta}</p>
+              <p className="text-[11px] text-(--mc-text-30)">{message.meta}</p>
             </div>
           ))}
-          <div className="inline-flex items-center gap-2 rounded-2xl rounded-bl-sm bg-white/8 px-4 py-3">
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/40" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/40 [animation-delay:120ms]" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/40 [animation-delay:240ms]" />
+          <div className="inline-flex items-center gap-2 rounded-2xl rounded-bl-sm bg-(--mc-soft) px-4 py-3">
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--mc-text-40)" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--mc-text-40) [animation-delay:120ms]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-(--mc-text-40) [animation-delay:240ms]" />
           </div>
         </div>
 
-        <div className="border-t border-white/10 px-4 py-3">
+        <div className="border-t border-(--mc-border) px-4 py-3">
           <div className="mb-3 flex flex-wrap gap-2">
             {aiChips.map((chip) => (
               <button
                 key={chip}
                 type="button"
                 onClick={() => onChipClick(chip)}
-                className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-xs text-white/70 hover:bg-white/10"
+                className="rounded-full border border-(--mc-border) bg-(--mc-soft) px-3 py-1.5 text-xs text-(--mc-text-70) hover:bg-(--mc-accent)/10"
               >
                 {chip}
               </button>
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" className="rounded-full p-2 text-white/50 hover:bg-white/5 hover:text-white">
+            <button type="button" className="rounded-full p-2 text-(--mc-text-50) hover:bg-(--mc-soft) hover:text-(--mc-fg)">
               <Mic className="size-4" />
             </button>
             <input
@@ -90,7 +90,7 @@ export function AiCheckerScreen({
                 if (event.key === "Enter") onAiSubmit();
               }}
               placeholder="Describe your symptoms..."
-              className="h-11 flex-1 rounded-full border border-white/10 bg-white/6 px-4 text-sm text-white outline-none placeholder:text-white/35"
+              className="h-11 flex-1 rounded-full border border-(--mc-border) bg-(--mc-soft) px-4 text-sm text-(--mc-fg) outline-none placeholder:text-(--mc-text-30)"
             />
             <button
               type="button"
@@ -111,9 +111,9 @@ export function AiCheckerScreen({
               <div key={item.label}>
                 <div className="mb-2 flex items-center justify-between text-sm">
                   <span>{item.label}</span>
-                  <span className="text-white/45">{item.value}%</span>
+                  <span className="text-(--mc-text-40)">{item.value}%</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-white/8">
+                <div className="h-1.5 rounded-full bg-(--mc-soft)">
                   <div
                     className={`h-1.5 rounded-full ${
                       item.tone === "amber"
@@ -139,7 +139,7 @@ export function AiCheckerScreen({
 
         <GlassCard className="p-5">
           <p className="mb-4 text-sm font-medium">Symptoms Logged</p>
-          <div className="space-y-2 text-sm text-white/65">
+          <div className="space-y-2 text-sm text-(--mc-text-60)">
             {["Persistent headache", "Fatigue", "Light sensitivity", "Temple pain"].map((item) => (
               <div key={item} className="flex items-center gap-2">
                 <div className="h-5 w-5 rounded-full bg-emerald-500/15 text-center text-xs leading-5 text-emerald-400">
