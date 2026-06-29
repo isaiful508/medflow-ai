@@ -4,17 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Menu,
-  CircleUserRound,
-  HeartPulse,
-  LayoutDashboard,
-  Bot,
-  Calendar,
-  Video,
-  MessageSquare,
-  ChartNoAxesColumn,
-} from "lucide-react";
+import { Menu, CircleUserRound, LayoutDashboard, Bot, Calendar, Video, MessageSquare, ChartNoAxesColumn, Stethoscope } from "lucide-react";
+import Logo from "@/assets/logo.svg";
 
 import { logout } from "@/services/AuthService";
 import { useUser } from "@/context/UserContext";
@@ -28,6 +19,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getVisibleNavItems } from "@/lib/navConfig";
+
 
 const navIcons = {
   dashboard: LayoutDashboard,
@@ -101,8 +93,8 @@ export function AppSidebar({
   return (
     <Sidebar collapsed={collapsed}>
       <SidebarHeader>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: "linear-gradient(135deg, var(--medflow-primary-600), var(--mc-accent))" }}>
-          <HeartPulse className="size-4 text-white" />
+       <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+              <Stethoscope className="w-4 h-4 text-white" />
         </div>
         {!collapsed ? (
           <div className="min-w-0">
