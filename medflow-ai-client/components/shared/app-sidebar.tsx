@@ -4,8 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Menu, CircleUserRound, LayoutDashboard, Bot, Calendar, Video, MessageSquare, ChartNoAxesColumn, Stethoscope } from "lucide-react";
-import Logo from "@/assets/logo.svg";
+import { Menu, CircleUserRound, LayoutDashboard, Bot, Calendar, Video, MessageSquare, Stethoscope, Users, ChevronDown, ChevronRight } from "lucide-react";
 
 import { logout } from "@/services/AuthService";
 import { useUser } from "@/context/UserContext";
@@ -28,7 +27,8 @@ const navIcons = {
   "video-call": Video,
   chat: MessageSquare,
   profile: CircleUserRound,
-  analytics: ChartNoAxesColumn,
+  patients: Users,
+  doctors: Stethoscope,
 } as const;
 
 export function AppSidebar({
@@ -93,7 +93,7 @@ export function AppSidebar({
   return (
     <Sidebar collapsed={collapsed}>
       <SidebarHeader>
-       <div className="w-7 h-7 rounded-[4px] bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+       <div className="w-7 h-7 rounded-lg bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center shrink-0">
               <Stethoscope className="w-4 h-4 text-white" />
         </div>
         {!collapsed ? (
@@ -113,7 +113,7 @@ export function AppSidebar({
         <SidebarGroup>
           {visibleNavItems.map((item) => {
             const Icon = navIcons[item.id];
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <li key={item.id} className="list-none">
                 <Link

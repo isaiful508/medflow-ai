@@ -5,7 +5,8 @@ export type ScreenId =
   | "video-call"
   | "chat"
   | "profile"
-  | "analytics";
+  | "patients"
+  | "doctors";
 
 export type UserRole = "patient" | "doctor" | "admin";
 
@@ -41,12 +42,13 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", href: "/dashboard", requiredRoles: ["patient", "doctor", "admin"] },
+  { id: "patients", label: "Patients", href: "/patients", requiredRoles: ["admin"] },
+  { id: "doctors", label: "Doctors", href: "/doctors", requiredRoles: ["admin"] },
   { id: "ai-checker", label: "AI Checker", href: "/ai-checker", requiredRoles: ["patient"] },
   { id: "appointments", label: "Appointments", href: "/appointments", requiredRoles: ["patient", "doctor"] },
   { id: "video-call", label: "Video Call", href: "/video-call", requiredRoles: ["patient", "doctor"] },
   { id: "chat", label: "Chat", href: "/chat", badge: "3", requiredRoles: ["patient", "doctor"] },
   { id: "profile", label: "Profile", href: "/profile", requiredRoles: ["patient", "doctor", "admin"] },
-  { id: "analytics", label: "Analytics", href: "/analytics", requiredRoles: ["doctor", "admin"] },
 ];
 
 export const statCards = [

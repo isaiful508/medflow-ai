@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 import {
   appointments,
   notifications,
@@ -19,10 +20,36 @@ import {
 
 export function DashboardScreen() {
   const router = useRouter();
+  const { user } = useUser();
+  const isAdmin = user?.role === "admin";
+
+  const summaryCards = isAdmin
+    ? [
+        { label: "Total Patients", value: "124", tone: "blue", change: "↑ 8 this week" },
+        { label: "Active Doctors", value: "18", tone: "green", change: "↑ 2 this month" },
+        { label: "Pending Visits", value: "9", tone: "amber", change: "3 need follow-up" },
+        { label: "Weekly Revenue", value: "$18.2k", tone: "purple", change: "↑ 12% vs last week" },
+      ]
+    : statCards;
+
+  const quickActions = isAdmin
+    ? [
+        { label: "Add Patient", tone: "blue" as const, href: "/patients" },
+        { label: "Add Doctor", tone: "green" as const, href: "/doctors" },
+        { label: "Appointments", tone: "purple" as const, href: "/appointments" },
+        { label: "Profile", tone: "amber" as const, href: "/profile" },
+      ]
+    : [
+        { label: "AI Check", tone: "blue" as const, href: "/ai-checker" },
+        { label: "Book Appt", tone: "green" as const, href: "/appointments" },
+        { label: "Video Call", tone: "purple" as const, href: "/video-call" },
+        { label: "Records", tone: "amber" as const, href: "/profile" },
+      ];
+
   return (
     <div className="space-y-4">
       <div className="grid gap-3 xl:grid-cols-4">
-        {statCards.map((card) => (
+        {summaryCards.map((card) => (
           <GlassCard key={card.label} className="p-5">
             <div className="flex items-center gap-3">
               <div className={`rounded-xl p-3 ${toneClass[card.tone]}`}>
@@ -66,26 +93,14 @@ export function DashboardScreen() {
           <GlassCard className="p-5">
             <p className="mb-4 text-sm font-medium">Quick Actions</p>
             <div className="grid grid-cols-2 gap-3">
-              <QuickActionButton
-                label="AI Check"
-                tone="blue"
-                onClick={() => router.push("/ai-checker")}
-              />
-              <QuickActionButton
-                label="Book Appt"
-                tone="green"
-                onClick={() => router.push("/appointments")}
-              />
-              <QuickActionButton
-                label="Video Call"
-                tone="purple"
-                onClick={() => router.push("/video-call")}
-              />
-              <QuickActionButton
-                label="Records"
-                tone="amber"
-                onClick={() => router.push("/profile")}
-              />
+              {quickActions.map((action) => (
+                <QuickActionButton
+                  key={action.label}
+                  label={action.label}
+                  tone={action.tone}
+                  onClick={() => router.push(action.href)}
+                />
+              ))}
             </div>
           </GlassCard>
 

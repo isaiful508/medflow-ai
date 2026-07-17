@@ -14,7 +14,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { isLoading } = useRequireAuth();
 
-  const currentNav = navItems.find((item) => item.href === pathname);
+  const currentNav = navItems.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
   const pageTitle = currentNav?.label ?? "Dashboard";
 
   if (isLoading) {
