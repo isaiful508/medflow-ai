@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 import { Bell, Moon, Search, SunMedium } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { useTheme } from "@/hooks/useTheme";
 
 export function Navbar({ pageTitle }: { pageTitle: string }) {
@@ -27,7 +35,7 @@ export function Navbar({ pageTitle }: { pageTitle: string }) {
       <button
         type="button"
         onClick={toggleTheme}
-        className="medflow-ai-toggle relative inline-flex h-10 w-10 items-center justify-center rounded-full border text-(--mc-text-70) transition hover:text-(--mc-fg)"
+        className="medflow-ai-toggle cursor-pointer relative inline-flex h-10 w-10 items-center justify-center rounded-full border text-(--mc-text-70) transition hover:text-(--mc-fg)"
         aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       >
@@ -38,10 +46,20 @@ export function Navbar({ pageTitle }: { pageTitle: string }) {
         )}
       </button>
 
-      <button type="button" className="relative text-(--mc-text-60) hover:text-(--mc-fg)">
+      <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className="cursor-pointer relative text-(--mc-text-60) hover:text-(--mc-fg)">
         <Bell className="size-5" />
         <span className="medflow-ai-notif-ring absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full border-2 bg-rose-500" />
       </button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverHeader>
+          <PopoverTitle>Notifications</PopoverTitle>
+          <PopoverDescription>Notifications will be displayed here.</PopoverDescription>
+        </PopoverHeader>
+      </PopoverContent>
+     </Popover>
     </header>
   );
 }
