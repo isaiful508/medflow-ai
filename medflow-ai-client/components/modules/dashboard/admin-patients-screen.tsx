@@ -163,6 +163,7 @@ export function AdminPatientsScreen() {
             placeholder="Search patients..."
             data={patients}
             columns={patientColumns}
+            onRowClick={openEditModal}
           />
         </div>
       </GlassCard>

@@ -71,14 +71,20 @@ export function createActionColumn<T>(
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => openEditModal(row.original)}
+          onClick={(event) => {
+            event.stopPropagation();
+            openEditModal(row.original);
+          }}
           className="rounded-lg border border-(--mc-border) p-2 text-(--mc-text-60)"
         >
           <Pencil className="size-4" />
         </button>
         <button
           type="button"
-          onClick={() => openDeleteDialog(row.original)}
+          onClick={(event) => {
+            event.stopPropagation();
+            openDeleteDialog(row.original);
+          }}
           className="rounded-lg border border-rose-500/30 p-2 text-rose-400"
         >
           <Trash2 className="size-4" />

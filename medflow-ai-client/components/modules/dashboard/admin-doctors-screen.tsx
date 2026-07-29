@@ -154,6 +154,7 @@ export function AdminDoctorsScreen() {
             placeholder="Search doctors..."
             data={doctors}
             columns={doctorColumns}
+            onRowClick={openEditModal}
           />
         </div>
       </GlassCard>
