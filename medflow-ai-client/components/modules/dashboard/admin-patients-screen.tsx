@@ -3,7 +3,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/ui/DataTable/data-table";
 import { Input } from "@/components/ui/input";
 import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
 import { createActionColumn, useCrudDialog } from "./admin-list-utils";
