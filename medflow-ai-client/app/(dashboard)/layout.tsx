@@ -36,7 +36,6 @@ export default function DashboardLayout({
         <div className="medflow-ai-grid absolute inset-0 bg-[size:40px_40px]" />
       </div>
 
-
       <AppSidebar />
 
       <section className="relative z-10 flex min-h-screen flex-1 flex-col overflow-hidden">

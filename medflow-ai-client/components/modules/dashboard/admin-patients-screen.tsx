@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { useMemo, useState, type FormEvent } from "react";
+import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
+import { createActionColumn, useCrudDialog } from "./admin-list-utils";
+import type { ColumnDef } from "@tanstack/react-table";
 
 type Patient = {
   id: number;
@@ -62,47 +65,61 @@ const emptyForm = {
 
 export function AdminPatientsScreen() {
   const [patients, setPatients] = useState(initialPatients);
-  const [form, setForm] = useState(emptyForm);
-  const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingPatient(null);
-    setForm(emptyForm);
-  };
+  type PatientForm = typeof emptyForm;
 
-  const openCreateModal = () => {
-    setEditingPatient(null);
-    setForm(emptyForm);
-    setIsModalOpen(true);
-  };
+  const {
+    form,
+    setForm,
+    editingItem: editingPatient,
+    isModalOpen,
+    isDeleteDialogOpen,
+    itemToDelete: patientToDelete,
+    closeModal,
+    openCreateModal,
+    openEditModal,
+    openDeleteDialog,
+    closeDeleteDialog,
+  } = useCrudDialog<Patient, PatientForm>(emptyForm, (patient) => ({
+    name: patient.name,
+    email: patient.email,
+    phone: patient.phone,
+    status: patient.status,
+    lastVisit: patient.lastVisit,
+    doctor: patient.doctor,
+    notes: patient.notes,
+  }));
 
-  const openEditModal = (patient: Patient) => {
-    setEditingPatient(patient);
-    setForm({
-      name: patient.name,
-      email: patient.email,
-      phone: patient.phone,
-      status: patient.status,
-      lastVisit: patient.lastVisit,
-      doctor: patient.doctor,
-      notes: patient.notes,
-    });
-    setIsModalOpen(true);
-  };
-
-  const openDeleteDialog = (patient: Patient) => {
-    setPatientToDelete(patient);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const closeDeleteDialog = () => {
-    setIsDeleteDialogOpen(false);
-    setPatientToDelete(null);
-  };
+  const patientColumns = useMemo<ColumnDef<Patient>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ getValue }: CellContext<Patient, string>) => <span className="font-medium text-(--mc-fg)">{getValue()}</span>,
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+      },
+      {
+        accessorKey: "phone",
+        header: "Phone",
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ getValue }: CellContext<Patient, string>) => (
+          <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-xs text-blue-300">{getValue()}</span>
+        ),
+      },
+      {
+        accessorKey: "lastVisit",
+        header: "Last visit",
+      },
+      createActionColumn(openEditModal, openDeleteDialog),
+    ],
+    [openDeleteDialog, openEditModal],
+  );
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -140,42 +157,13 @@ export function AdminPatientsScreen() {
             Add patient
           </Button>
         </div>
-        <div className="overflow-x-auto p-5">
-          <table className="min-w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-(--mc-border) text-(--mc-text-40)">
-                <th className="px-3 py-3">Name</th>
-                <th className="px-3 py-3">Email</th>
-                <th className="px-3 py-3">Phone</th>
-                <th className="px-3 py-3">Status</th>
-                <th className="px-3 py-3">Last visit</th>
-                <th className="px-3 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patients.map((patient) => (
-                <tr key={patient.id} className="border-b border-(--mc-border)/70 last:border-b-0">
-                  <td className="px-3 py-3 font-medium text-(--mc-fg)">{patient.name}</td>
-                  <td className="px-3 py-3 text-(--mc-text-50)">{patient.email}</td>
-                  <td className="px-3 py-3 text-(--mc-text-50)">{patient.phone}</td>
-                  <td className="px-3 py-3">
-                    <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-xs text-blue-300">{patient.status}</span>
-                  </td>
-                  <td className="px-3 py-3 text-(--mc-text-50)">{patient.lastVisit}</td>
-                  <td className="px-3 py-3">
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => openEditModal(patient)} className="rounded-lg border border-(--mc-border) p-2 text-(--mc-text-60)">
-                        <Pencil className="size-4" />
-                      </button>
-                      <button type="button" onClick={() => openDeleteDialog(patient)} className="rounded-lg border border-rose-500/30 p-2 text-rose-400">
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="p-5">
+          <DataTable
+            search
+            placeholder="Search patients..."
+            data={patients}
+            columns={patientColumns}
+          />
         </div>
       </GlassCard>
 

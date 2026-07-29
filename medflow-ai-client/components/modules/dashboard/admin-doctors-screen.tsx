@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { useMemo, useState, type FormEvent } from "react";
+import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
+import { createActionColumn, useCrudDialog } from "./admin-list-utils";
+import type { ColumnDef } from "@tanstack/react-table";
 
 type Doctor = {
   id: number;
@@ -57,46 +60,60 @@ const emptyForm = {
 
 export function AdminDoctorsScreen() {
   const [doctors, setDoctors] = useState(initialDoctors);
-  const [form, setForm] = useState(emptyForm);
-  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingDoctor(null);
-    setForm(emptyForm);
-  };
+  type DoctorForm = typeof emptyForm;
 
-  const openCreateModal = () => {
-    setEditingDoctor(null);
-    setForm(emptyForm);
-    setIsModalOpen(true);
-  };
+  const {
+    form,
+    setForm,
+    editingItem: editingDoctor,
+    isModalOpen,
+    isDeleteDialogOpen,
+    itemToDelete: doctorToDelete,
+    closeModal,
+    openCreateModal,
+    openEditModal,
+    openDeleteDialog,
+    closeDeleteDialog,
+  } = useCrudDialog<Doctor, DoctorForm>(emptyForm, (doctor) => ({
+    name: doctor.name,
+    specialty: doctor.specialty,
+    email: doctor.email,
+    phone: doctor.phone,
+    availability: doctor.availability,
+    status: doctor.status,
+  }));
 
-  const openEditModal = (doctor: Doctor) => {
-    setEditingDoctor(doctor);
-    setForm({
-      name: doctor.name,
-      specialty: doctor.specialty,
-      email: doctor.email,
-      phone: doctor.phone,
-      availability: doctor.availability,
-      status: doctor.status,
-    });
-    setIsModalOpen(true);
-  };
-
-  const openDeleteDialog = (doctor: Doctor) => {
-    setDoctorToDelete(doctor);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const closeDeleteDialog = () => {
-    setIsDeleteDialogOpen(false);
-    setDoctorToDelete(null);
-  };
+  const doctorColumns = useMemo<ColumnDef<Doctor>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ getValue }: CellContext<Doctor, string>) => <span className="font-medium text-(--mc-fg)">{getValue()}</span>,
+      },
+      {
+        accessorKey: "specialty",
+        header: "Specialty",
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+      },
+      {
+        accessorKey: "availability",
+        header: "Availability",
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ getValue }: CellContext<Doctor, string>) => (
+          <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-xs text-blue-300">{getValue()}</span>
+        ),
+      },
+      createActionColumn(openEditModal, openDeleteDialog),
+    ],
+    [openDeleteDialog, openEditModal],
+  );
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -131,38 +148,13 @@ export function AdminDoctorsScreen() {
             Add doctor
           </Button>
         </div>
-        <div className="overflow-x-auto p-5">
-          <table className="min-w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-(--mc-border) text-(--mc-text-40)">
-                <th className="px-3 py-3">Name</th>
-                <th className="px-3 py-3">Specialty</th>
-                <th className="px-3 py-3">Email</th>
-                <th className="px-3 py-3">Availability</th>
-                <th className="px-3 py-3">Status</th>
-                <th className="px-3 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {doctors.map((doctor) => (
-                <tr key={doctor.id} className="border-b border-(--mc-border)/70 last:border-b-0">
-                  <td className="px-3 py-3 font-medium text-(--mc-fg)">{doctor.name}</td>
-                  <td className="px-3 py-3 text-(--mc-text-50)">{doctor.specialty}</td>
-                  <td className="px-3 py-3 text-(--mc-text-50)">{doctor.email}</td>
-                  <td className="px-3 py-3 text-(--mc-text-50)">{doctor.availability}</td>
-                  <td className="px-3 py-3">
-                    <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-xs text-blue-300">{doctor.status}</span>
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => openEditModal(doctor)} className="rounded-lg border border-(--mc-border) p-2 text-(--mc-text-60)"><Pencil className="size-4" /></button>
-                      <button type="button" onClick={() => openDeleteDialog(doctor)} className="rounded-lg border border-rose-500/30 p-2 text-rose-400"><Trash2 className="size-4" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="p-5">
+          <DataTable
+            search
+            placeholder="Search doctors..."
+            data={doctors}
+            columns={doctorColumns}
+          />
         </div>
       </GlassCard>
 
