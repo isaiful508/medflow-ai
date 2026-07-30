@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/auth-server";
-import { AdminPatientsScreen } from "@/components/modules/dashboard/admin-patients-screen";
+import { Patients } from "@/components/modules/dashboard/admin/patients";
 
 export default async function PatientsPage() {
   const user = await getServerUser();
@@ -8,5 +8,5 @@ export default async function PatientsPage() {
     redirect("/dashboard");
   }
 
-  return <AdminPatientsScreen />;
+  return <Patients />;
 }

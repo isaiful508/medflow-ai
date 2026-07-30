@@ -48,7 +48,7 @@ const emptyForm: DoctorForm = {
   status: "Available",
 };
 
-export function Doctor() {
+export function Doctors() {
   const [doctors, setDoctors] = useState(initialDoctors);
 
   const {
