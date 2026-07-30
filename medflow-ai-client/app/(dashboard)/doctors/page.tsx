@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/auth-server";
-import { Doctor } from "@/components/modules/dashboard/admin/doctor";
+import { Doctor } from "@/components/modules/dashboard/admin/doctors";
 
 export default async function DoctorsPage() {
   const user = await getServerUser();
