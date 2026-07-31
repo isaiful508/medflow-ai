@@ -3,7 +3,7 @@
 import { AlertTriangle, Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { DoctorCredentials } from "./types";
+import type { DoctorCredentials } from "./index";
 
 interface DoctorCredentialsModalProps {
   credentials: DoctorCredentials;
@@ -23,7 +23,7 @@ export function DoctorCredentialsModal({ credentials, onClose }: DoctorCredentia
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-md rounded-3xl border border-(--mc-border) bg-(--mc-card) p-6 shadow-2xl">
         <div className="flex items-center gap-2 text-amber-500">
           <AlertTriangle className="size-5" />

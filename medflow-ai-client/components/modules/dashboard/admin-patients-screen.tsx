@@ -7,7 +7,7 @@ import { DataTable } from "@/components/ui/DataTable/data-table";
 import { Input } from "@/components/ui/input";
 import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
 import { createActionColumn, useCrudDialog } from "./admin-list-utils";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { CellContext, ColumnDef } from "@tanstack/react-table";
 
 type Patient = {
   id: number;

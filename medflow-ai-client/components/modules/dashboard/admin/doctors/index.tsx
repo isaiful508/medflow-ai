@@ -10,6 +10,7 @@ import { CreateDoctor, type Doctor, type DoctorForm } from "./CreateDoctor";
 import { DoctorCredentialsModal } from "./CredentialsModal";
 import { DoctorListsTable } from "./DoctorListsTable";
 import { generateSecurePassword } from "@/lib/generatePassword";
+import API from "@/lib/api";
 
 export type DoctorCredentials = {
   email: string;
@@ -163,17 +164,48 @@ export function Doctors() {
     // --- CREATE ---
     const password = generateSecurePassword(6);
 
-    // Replace with your real API call, e.g.:
-    // const res = await fetch("/api/doctors", { method: "POST", body: JSON.stringify({ ...form, password }) });
-    // const created: Doctor = await res.json();
-    const created: Doctor = { ...form, id: Date.now() };
+    try {
+      const response = await API.post("/doctors", {
+        fullName: form.name,
+        specialty: form.specialty,
+        email: form.email,
+        phone: form.phone,
+        gender: form.gender,
+        licenseNumber: form.licenseNumber,
+        qualification: form.qualification,
+        experienceYears: form.experienceYears,
+        department: form.department,
+        consultationFee: form.consultationFee,
+        availability: form.availability,
+        status: form.status,
+        password,
+      });
 
-    setDoctors((current) => [created, ...current]);
-    closeModal();
+      const createdDoctor = response.data?.data?.doctor;
+      const doctorForTable: Doctor = {
+        id: createdDoctor?.id ?? Date.now(),
+        name: createdDoctor?.fullName ?? form.name,
+        specialty: createdDoctor?.specialty ?? form.specialty,
+        email: createdDoctor?.email ?? form.email,
+        phone: createdDoctor?.phone ?? form.phone,
+        gender: createdDoctor?.gender ?? form.gender,
+        licenseNumber: createdDoctor?.licenseNumber ?? form.licenseNumber,
+        qualification: createdDoctor?.qualification ?? form.qualification,
+        experienceYears: createdDoctor?.experienceYears ?? form.experienceYears,
+        department: createdDoctor?.department ?? form.department,
+        consultationFee: createdDoctor?.consultationFee ?? form.consultationFee,
+        availability: createdDoctor?.availability ?? form.availability,
+        status: createdDoctor?.status ?? form.status,
+      };
 
-    // Show credentials exactly once. Nothing else in the app holds onto
-    // this password after the modal closes — admin must save it now.
-    setCredentials({ email: form.email, password });
+      setDoctors((current) => [doctorForTable, ...current]);
+      closeModal();
+      setCredentials({ email: form.email, password });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unable to create doctor";
+      console.error(message);
+      alert(message);
+    }
   };
 
   const handleDeleteConfirm = () => {
