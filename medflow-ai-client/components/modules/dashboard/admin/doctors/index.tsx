@@ -7,7 +7,14 @@ import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
 import { createActionColumn, useCrudDialog } from "../../admin-list-utils";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CreateDoctor, type Doctor, type DoctorForm } from "./CreateDoctor";
+import { DoctorCredentialsModal } from "./CredentialsModal";
 import { DoctorListsTable } from "./DoctorListsTable";
+import { generateSecurePassword } from "@/lib/generatePassword";
+
+export type DoctorCredentials = {
+  email: string;
+  password: string;
+};
 
 const initialDoctors: Doctor[] = [
   {
@@ -16,6 +23,12 @@ const initialDoctors: Doctor[] = [
     specialty: "Neurologist",
     email: "priya.kapoor@medflow.ai",
     phone: "+1 202 555 0198",
+    gender: "Female",
+    licenseNumber: "MD-10293",
+    qualification: "MBBS, MD",
+    experienceYears: 9,
+    department: "Neurology",
+    consultationFee: 80,
     availability: "Available today",
     status: "Available",
   },
@@ -25,6 +38,12 @@ const initialDoctors: Doctor[] = [
     specialty: "Cardiologist",
     email: "michael.reed@medflow.ai",
     phone: "+1 202 555 0121",
+    gender: "Male",
+    licenseNumber: "MD-88213",
+    qualification: "MBBS, DM Cardiology",
+    experienceYears: 14,
+    department: "Cardiology",
+    consultationFee: 120,
     availability: "Tomorrow morning",
     status: "Busy",
   },
@@ -34,6 +53,12 @@ const initialDoctors: Doctor[] = [
     specialty: "Dermatologist",
     email: "aisha.loren@medflow.ai",
     phone: "+1 202 555 0177",
+    gender: "Female",
+    licenseNumber: "MD-55621",
+    qualification: "MBBS, MD Dermatology",
+    experienceYears: 6,
+    department: "Dermatology",
+    consultationFee: 60,
     availability: "Next week",
     status: "On leave",
   },
@@ -44,12 +69,21 @@ const emptyForm: DoctorForm = {
   specialty: "",
   email: "",
   phone: "",
+  gender: "Male",
+  licenseNumber: "",
+  qualification: "",
+  experienceYears: 0,
+  department: "",
+  consultationFee: 0,
   availability: "",
   status: "Available",
 };
 
 export function Doctors() {
   const [doctors, setDoctors] = useState(initialDoctors);
+
+  // Lives ONLY in memory, only between "just created" and "admin closed the modal"
+  const [credentials, setCredentials] = useState<DoctorCredentials | null>(null);
 
   const {
     form,
@@ -68,6 +102,12 @@ export function Doctors() {
     specialty: doctor.specialty,
     email: doctor.email,
     phone: doctor.phone,
+    gender: doctor.gender,
+    licenseNumber: doctor.licenseNumber,
+    qualification: doctor.qualification,
+    experienceYears: doctor.experienceYears,
+    department: doctor.department,
+    consultationFee: doctor.consultationFee,
     availability: doctor.availability,
     status: doctor.status,
   }));
@@ -88,6 +128,10 @@ export function Doctors() {
         header: "Email",
       },
       {
+        accessorKey: "department",
+        header: "Department",
+      },
+      {
         accessorKey: "availability",
         header: "Availability",
       },
@@ -103,17 +147,33 @@ export function Doctors() {
     [openDeleteDialog, openEditModal],
   );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!form.name || !form.email) return;
 
     if (editingDoctor) {
+      // --- UPDATE (no password involved) ---
+      // Replace with your real API call, e.g.:
+      // await fetch(`/api/doctors/${editingDoctor.id}`, { method: "PATCH", body: JSON.stringify(form) });
       setDoctors((current) => current.map((doctor) => (doctor.id === editingDoctor.id ? { ...doctor, ...form, id: doctor.id } : doctor)));
-    } else {
-      setDoctors((current) => [{ ...form, id: Date.now() }, ...current]);
+      closeModal();
+      return;
     }
 
+    // --- CREATE ---
+    const password = generateSecurePassword(6);
+
+    // Replace with your real API call, e.g.:
+    // const res = await fetch("/api/doctors", { method: "POST", body: JSON.stringify({ ...form, password }) });
+    // const created: Doctor = await res.json();
+    const created: Doctor = { ...form, id: Date.now() };
+
+    setDoctors((current) => [created, ...current]);
     closeModal();
+
+    // Show credentials exactly once. Nothing else in the app holds onto
+    // this password after the modal closes — admin must save it now.
+    setCredentials({ email: form.email, password });
   };
 
   const handleDeleteConfirm = () => {
@@ -154,6 +214,13 @@ export function Doctors() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {credentials ? (
+        <DoctorCredentialsModal
+          credentials={credentials}
+          onClose={() => setCredentials(null)} // gone for good, no way back in
+        />
       ) : null}
     </div>
   );
