@@ -32,7 +32,7 @@ export function GlassCard({
 }) {
   return (
     <div
-      className={`rounded-3xl border border-(--mc-border) bg-(--mc-card) backdrop-blur-xl ${className}`}
+      className={`p-4 rounded-sm border border-(--mc-border) bg-(--mc-card) backdrop-blur-xl ${className}`}
     >
       {children}
     </div>

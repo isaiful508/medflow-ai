@@ -12,8 +12,11 @@ interface DoctorListsTableProps {
 
 export function DoctorListsTable({ doctors, columns, onRowClick }: DoctorListsTableProps) {
   return (
-    <div className="p-5">
-      <DataTable search placeholder="Search doctors..." data={doctors} columns={columns} onRowClick={onRowClick} />
-    </div>
+      <DataTable
+      search placeholder="Search doctors..."
+      data={doctors}
+      columns={columns}
+      onRowClick={onRowClick}
+      />
   );
 }

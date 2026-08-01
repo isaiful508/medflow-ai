@@ -3,7 +3,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
+import { GlassCard } from "@/components/shared/ui-helpers";
 import { createActionColumn, useCrudDialog } from "../../admin-list-utils";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CreateDoctor, type Doctor, type DoctorForm } from "./CreateDoctor";
@@ -62,6 +62,111 @@ const initialDoctors: Doctor[] = [
     consultationFee: 60,
     availability: "Next week",
     status: "On leave",
+  },
+  {
+    id: 4,
+    name: "Dr. Ethan Brooks",
+    specialty: "Orthopedic Surgeon",
+    email: "ethan.brooks@medflow.ai",
+    phone: "+1 202 555 0134",
+    gender: "Male",
+    licenseNumber: "MD-77291",
+    qualification: "MBBS, MS Orthopedics",
+    experienceYears: 11,
+    department: "Orthopedics",
+    consultationFee: 95,
+    availability: "Available today",
+    status: "Available",
+  },
+  {
+    id: 5,
+    name: "Dr. Sophia Chen",
+    specialty: "Pediatrician",
+    email: "sophia.chen@medflow.ai",
+    phone: "+1 202 555 0145",
+    gender: "Female",
+    licenseNumber: "MD-44512",
+    qualification: "MBBS, MD Pediatrics",
+    experienceYears: 8,
+    department: "Pediatrics",
+    consultationFee: 70,
+    availability: "Today afternoon",
+    status: "Available",
+  },
+  {
+    id: 6,
+    name: "Dr. James Wilson",
+    specialty: "General Physician",
+    email: "james.wilson@medflow.ai",
+    phone: "+1 202 555 0162",
+    gender: "Male",
+    licenseNumber: "MD-33894",
+    qualification: "MBBS, MD Internal Medicine",
+    experienceYears: 12,
+    department: "General Medicine",
+    consultationFee: 65,
+    availability: "Tomorrow evening",
+    status: "Busy",
+  },
+  {
+    id: 7,
+    name: "Dr. Emma Rodriguez",
+    specialty: "Gynecologist",
+    email: "emma.rodriguez@medflow.ai",
+    phone: "+1 202 555 0189",
+    gender: "Female",
+    licenseNumber: "MD-67381",
+    qualification: "MBBS, MS Obstetrics & Gynecology",
+    experienceYears: 10,
+    department: "Gynecology",
+    consultationFee: 90,
+    availability: "Available today",
+    status: "Available",
+  },
+  {
+    id: 8,
+    name: "Dr. Daniel Kim",
+    specialty: "Psychiatrist",
+    email: "daniel.kim@medflow.ai",
+    phone: "+1 202 555 0118",
+    gender: "Male",
+    licenseNumber: "MD-12947",
+    qualification: "MBBS, MD Psychiatry",
+    experienceYears: 7,
+    department: "Psychiatry",
+    consultationFee: 85,
+    availability: "Friday morning",
+    status: "Available",
+  },
+  {
+    id: 9,
+    name: "Dr. Olivia Parker",
+    specialty: "Ophthalmologist",
+    email: "olivia.parker@medflow.ai",
+    phone: "+1 202 555 0156",
+    gender: "Female",
+    licenseNumber: "MD-59102",
+    qualification: "MBBS, MS Ophthalmology",
+    experienceYears: 13,
+    department: "Ophthalmology",
+    consultationFee: 100,
+    availability: "Next Monday",
+    status: "Busy",
+  },
+  {
+    id: 10,
+    name: "Dr. Noah Bennett",
+    specialty: "ENT Specialist",
+    email: "noah.bennett@medflow.ai",
+    phone: "+1 202 555 0109",
+    gender: "Male",
+    licenseNumber: "MD-28465",
+    qualification: "MBBS, MS ENT",
+    experienceYears: 5,
+    department: "ENT",
+    consultationFee: 55,
+    availability: "Available today",
+    status: "Available",
   },
 ];
 
@@ -217,18 +322,15 @@ export function Doctors() {
   return (
     <div className="space-y-4">
       <GlassCard>
-        <CardHeader title="Doctor list" />
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-(--mc-border) px-5 py-4">
-          <div>
-            <p className="text-sm font-medium">Doctor roster</p>
-            <p className="text-xs text-(--mc-text-40)">Manage medical staff from a single table view.</p>
-          </div>
           <Button type="button" onClick={openCreateModal} className="gap-2">
             <Plus className="size-4" />
             Add doctor
           </Button>
-        </div>
-        <DoctorListsTable doctors={doctors} columns={doctorColumns} onRowClick={openEditModal} />
+        <DoctorListsTable
+          doctors={doctors}
+          columns={doctorColumns}
+          onRowClick={openEditModal}
+        />
       </GlassCard>
 
       {isModalOpen ? (
