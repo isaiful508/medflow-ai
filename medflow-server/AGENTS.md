@@ -56,6 +56,12 @@ src/
     │   │   ├── auth.controller.ts
     │   │   ├── auth.service.ts
     │   │   └── auth.route.ts
+    │   ├── doctor/            # Doctor registration module
+    │   │   ├── doctor.interface.ts
+    │   │   ├── doctor.validation.ts
+    │   │   ├── doctor.controller.ts
+    │   │   ├── doctor.service.ts
+    │   │   └── doctor.route.ts
     │   ├── user/              # User model (shared by auth and other modules)
     │   │   ├── user.interface.ts
     │   │   └── user.model.ts

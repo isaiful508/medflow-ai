@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-**MedflowAI** is a telemedicine platform dashboard built with Next.js 16 (App Router), React 19, and TypeScript. It provides AI-powered symptom checking, appointment booking, video calls, chat, and health analytics for patients and doctors.
+**MedflowAI** is a telemedicine platform dashboard built with Next.js 16 (App Router), React 19, and TypeScript. It provides AI-powered symptom checking, appointment booking, video calls, chat, and health analytics for patients, doctors, and admins.
 
 ## Tech Stack
 
@@ -12,11 +12,11 @@
 |---|---|
 | Framework | Next.js 16.2.4 (App Router) |
 | UI | React 19.2.4, Tailwind CSS 4 |
-| Components | shadcn/ui (Radix UI, "radix-nova" style) |
+| Components | shadcn/ui + custom shared components |
 | Language | TypeScript 5 |
 | Forms | React Hook Form + Zod 4.3.6 |
 | Auth | JWT (cookie-based, `jwt-decode`) |
-| HTTP | Axios (auth only; dashboard uses static data) |
+| HTTP | Fetch + Server Actions |
 | Icons | Lucide React |
 | Styling | CSS custom properties (dual-theme) |
 
@@ -26,108 +26,109 @@
 
 ```
 app/
-├── layout.tsx          # Root: theme script, UserProvider, metadata
-├── page.tsx            # Home → renders DashboardShell
-├── providers.tsx       # Client-side UserProvider wrapper
-├── globals.css         # Tailwind + CSS variable theming (dark/light)
-├── login/page.tsx      # Renders LoginForm
-└── register/page.tsx   # Renders RegisterForm
+├── layout.tsx                     # Root layout: theme script, Providers, metadata
+├── page.tsx                       # Redirects to /dashboard
+├── globals.css                    # Tailwind and theme variables
+├── providers.tsx                  # `UserProvider` wrapper
+├── login/page.tsx                 # Login page
+├── register/page.tsx              # Register page
+└── (dashboard)/                   # Protected dashboard route group
+    ├── layout.tsx                 # Dashboard layout with sidebar + navbar
+    ├── dashboard/page.tsx         # Dashboard screen
+    ├── ai-checker/page.tsx        # AI Checker screen
+    ├── appointments/page.tsx      # Appointments screen
+    ├── chat/page.tsx              # Chat screen
+    ├── profile/page.tsx           # Profile screen
+    ├── video-call/page.tsx        # Video call screen
+    ├── analytics/page.tsx         # Analytics screen
+    ├── doctors/page.tsx           # Doctors admin screen
+    └── patients/page.tsx          # Patients admin screen
 ```
-
-### Dashboard (SPA-style)
-
-The `DashboardShell` component (`components/modules/dashboard/dashboard-shell.tsx`) is the main orchestrator:
-- Manages `screen` state for internal view switching
-- Contains the top bar (search, theme toggle, notifications)
-- Renders one of 7 screens based on `screen` state:
-  - `dashboard` → `DashboardScreen` (stats, appointments, notifications)
-  - `ai-checker` → `AiCheckerScreen` (symptom chat with AI)
-  - `appointments` → `AppointmentsScreen` (doctor select, calendar, time slots)
-  - `video-call` → `VideoCallScreen` (video call UI + in-call chat)
-  - `chat` → `ChatScreen` (conversation list + messages)
-  - `profile` → `ProfileScreen` (info/history/vitals tabs)
-  - `analytics` → `AnalyticsScreen` (charts + patient table)
 
 ### Auth Flow
 
-1. **Register**: `service/AuthService/index.ts` → `registerUser()` Server Action → POST `/auth/register` → sets `accessToken` cookie
-2. **Login**: `loginUser()` Server Action → POST `/auth/login` → sets `accessToken` cookie
+1. **Register**: `service/AuthService/index.ts` → `registerUser()` server action → POST `/auth/register` → sets `accessToken` cookie
+2. **Login**: `loginUser()` server action → POST `/auth/login` → sets `accessToken` cookie
 3. **Current User**: `getCurrentUser()` reads `accessToken` cookie → decodes JWT with `jwt-decode`
 4. **Logout**: `logout()` deletes `accessToken` cookie
-5. **Context**: `UserContext` fetches current user on mount, provides `user`/`setUser`/`isLoading` app-wide
+5. **Context**: `UserContext` provides `user`, `setUser`, and `isLoading` across the app
+
+### Dashboard Page Components
+
+Each dashboard route renders a screen component from `components/modules/dashboard/`:
+- `dashboard/page.tsx` → `DashboardScreen`
+- `ai-checker/page.tsx` → `AiCheckerScreen`
+- `appointments/page.tsx` → `AppointmentsScreen`
+- `chat/page.tsx` → `ChatScreen`
+- `profile/page.tsx` → `ProfileScreen`
+- `video-call/page.tsx` → `VideoCallScreen`
+- `analytics/page.tsx` → `AnalyticsScreen`
+- `doctors/page.tsx` → `DoctorsScreen`
+- `patients/page.tsx` → `PatientsScreen`
 
 ### Key Files
 
 | File | Purpose |
 |---|---|
-| `service/AuthService/index.ts` | Server Actions for auth (register, login, current user, logout) |
-| `context/UserContext.tsx` | React context for user state |
-| `lib/validations/auth.ts` | Zod schemas: `loginSchema`, `registerSchema` |
-| `lib/medflow-ai-data.ts` | All static/mock data + TypeScript types |
-| `lib/auth.ts` | Auth response parsing helpers |
-| `types/index.ts` | `IUser`, `AuthResponse` interfaces |
-| `components/app-sidebar.tsx` | Collapsible sidebar with nav + user menu + logout |
-| `components/shared/ui-helpers.tsx` | Reusable UI: `GlassCard`, `Avatar`, `CircleButton`, `toneClass`, etc. |
-| `components/ui/` | shadcn/ui base components (button, input, card, sidebar) |
-| `.env` | `NEXT_PUBLIC_BASE_API=http://localhost:5000/api` |
+| `app/layout.tsx` | Root layout with theme script and Providers |
+| `app/page.tsx` | Redirects to `/dashboard` |
+| `app/(dashboard)/layout.tsx` | Dashboard layout with `AppSidebar` and `Navbar` |
+| `providers/providers.tsx` | Wraps app with `UserProvider` |
+| `service/AuthService/index.ts` | Server Actions for auth |
+| `context/UserContext.tsx` | User authentication state and data |
+| `lib/medflow-ai-data.ts` | Static dashboard data and type definitions |
+| `lib/auth.ts` | Client auth helpers |
+| `lib/auth-server.ts` | Server-side auth helpers for cookies |
+| `lib/validations/auth.ts` | Zod form schemas |
+| `components/shared/app-sidebar.tsx` | Sidebar navigation layout |
+| `components/shared/navbar.tsx` | Top navigation bar |
+| `components/shared/ui-helpers.tsx` | Shared UI helpers and reusable UI pieces |
 
 ## Coding Conventions
 
 ### Directives
-- `"use client"` on **every interactive component** (forms, hooks, state)
-- `"use server"` on **Server Actions** only (`service/AuthService/index.ts`)
+- `"use client"` on every interactive component
+- `"use server"` only on Server Actions
 
 ### Path Aliases
-- `@/*` resolves to project root (configured in `tsconfig.json`)
+- `@/*` resolves to project root via `tsconfig.json`
 
 ### Styling
-- Use **Tailwind CSS classes** as primary styling method
-- Use **CSS custom properties** (`--mc-*`, `--color-*`) for theme-aware values
-- Use `cn()` from `@/lib/utils` to merge class strings
-- Theme is toggled via `data-theme` attribute on `<html>` and persisted in `localStorage`
-- MedflowAI-specific CSS classes follow `.medflow-*` pattern (e.g., `.medflow-ai-card`, `.medflow-ai-sidebar`)
+- Tailwind CSS is the primary styling method
+- Use CSS custom properties for theme-aware colors
+- Use `cn()` for merging class names
+- Maintain dark/light theme support in all UI
 
 ### Components
-- Follow shadcn/ui patterns: `cva` for variants, `className` prop with `cn()` for overrides
-- Shared UI primitives go in `components/shared/ui-helpers.tsx`
-- Feature components go in `components/modules/<feature>/`
-- Base UI components go in `components/ui/`
+- Use `components/modules/<feature>/` for page-specific UI
+- Use `components/shared/` for reusable UI and helpers
+- Avoid new CSS frameworks or styling patterns
 
 ### Forms
-- Use `react-hook-form` with `@hookform/resolvers/zod`
-- Define Zod schemas in `lib/validations/`
-- Infer TypeScript types with `z.infer<typeof schema>`
+- Use React Hook Form + Zod
+- Define schemas in `lib/validations/`
+- Infer form types with `z.infer<typeof schema>`
 
 ### Data
-- All dashboard data is **static/mock** (in `lib/medflow-ai-data.ts`)
-- No real API integration beyond auth yet
-- Types and mock data are co-located in `lib/medflow-ai-data.ts`
+- Dashboard data is mainly static/mock in `lib/medflow-ai-data.ts`
+- Use existing helper functions in `lib/auth.ts` and `lib/auth-server.ts`
+- Avoid introducing global state libraries
 
 ## Development
 
 ```bash
-npm run dev      # Start dev server (port 3000)
-npm run build    # Production build
-npm run start    # Production server
-npm run lint     # ESLint
+npm run dev
+npm run build
+npm run start
+npm run lint
 ```
 
 ## Environment
 
-- `NEXT_PUBLIC_BASE_API` — Backend API base URL (default: `http://localhost:5000/api`)
+- `NEXT_PUBLIC_BASE_API` — backend API base URL (default: `http://localhost:5000/api`)
 
-## Key Implementation Details
+## Notes
 
-- **Theme**: Dual dark/light theme with CSS variables. A blocking script in `layout.tsx` prevents FOUC by reading `localStorage` before first paint.
-- **Sidebar**: Uses a custom lightweight sidebar (`components/ui/sidebar.tsx`), not the shadcn sidebar primitive — it supports collapsed state.
-- **Dashboard routing is client-side**: Screen changes happen via `useState`, not Next.js navigation.
-- **Axios instance** exists in `lib/api.ts` but is not yet used for data fetching.
-
-## Before Making Changes
-
-1. Read the relevant source files to understand current patterns
-2. Follow existing architecture (don't introduce new patterns without reason)
-3. Preserve the dual-theme support for any new UI
-4. Keep dashboard screens as client components with `"use client"`
-5. Use existing shared UI helpers (`GlassCard`, `Avatar`, `toneClass`, etc.)
-6. Prefer minimal changes — don't refactor unrelated code
+- Current backend integration is limited to auth and static dashboard data.
+- The dashboard uses route-based pages in `app/(dashboard)/` instead of a single client screen router.
+- New feature pages should be added as `app/(dashboard)/<page>/page.tsx` with a corresponding screen component under `components/modules/dashboard/`.

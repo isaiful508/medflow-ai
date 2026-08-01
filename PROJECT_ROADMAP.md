@@ -1,6 +1,6 @@
 # 🏥 MedflowAI — Project Roadmap & Plan
 
-> **Last Updated:** 2026-06-19
+> **Last Updated:** 2026-08-01
 > **Current Stage:** Foundation (~30-35% complete)
 > **Goal:** Production-ready telemedicine SaaS for European market
 
@@ -37,8 +37,8 @@
 |---|---|---|
 | Frontend UI (7 screens) | ✅ Complete | Dashboard, AI Checker, Appointments, Video Call, Chat, Profile, Analytics |
 | Auth (Register/Login) | ✅ Working | JWT access + refresh tokens, cookie-based, bcrypt hashing |
-| Backend API (Auth only) | ⚠️ Minimal | Register, login, refresh, logout endpoints |
-| Database Schemas | ⚠️ Partial | User model + counter utility exist |
+| Backend API (Auth + doctor) | ⚠️ Minimal | Register, login, refresh, logout, doctor registration endpoints |
+| Database Schemas | ⚠️ Partial | User, doctor, and counter models exist |
 | Theme System | ✅ Complete | Dark/light mode with CSS variables, persisted in localStorage |
 | Login/Register Pages | ✅ Complete | Beautiful UI with Google OAuth button (UI only) |
 
@@ -317,6 +317,7 @@
 | User login | ✅ Complete | — | Working with backend |
 | JWT refresh token | ✅ Complete | — | Working |
 | Logout | ✅ Complete | — | Working |
+| Doctor registration | ✅ Complete | 1 | Backend doctor module and create endpoint exist |
 | User context (React) | ✅ Complete | — | Working |
 | Protected routes | ⬜ Not Started | 2 | Need role-based logic |
 | Email verification | ⬜ Not Started | 2 | Need email service |

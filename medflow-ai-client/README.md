@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MedflowAI Client
 
-## Getting Started
+This is the frontend application for **MedflowAI**, a telemedicine dashboard built with **Next.js 16**, **React 19**, **TypeScript**, and **Tailwind CSS 4**.
 
-First, run the development server:
+## Quick Start
 
 ```bash
+cd medflow-ai-client
+cp .env.example .env
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the client.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Overview
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/` contains the Next.js App Router pages and layouts.
+- `components/` contains UI components, dashboard modules, and shared UI helpers.
+- `context/` contains the `UserContext` provider.
+- `lib/` contains mock data, auth helpers, validations, and utilities.
+- `service/AuthService/` contains Server Actions for auth.
+- `types/` contains shared TypeScript interfaces.
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
+- The app currently supports authentication and static dashboard screens.
+- Most dashboard data is static/mock and is not yet fully wired to the backend.
+- Auth uses cookies and connects to the backend API via `NEXT_PUBLIC_BASE_API`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Backend Integration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The frontend expects the backend API to be available under `http://localhost:5000/api` by default.
 
-## Deploy on Vercel
+Key endpoints:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
+- `POST /api/doctors`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Available Scripts
+
+- `npm run dev` — Start the frontend in development mode.
+- `npm run build` — Build the production app.
+- `npm run start` — Start the production server.
+- `npm run lint` — Run ESLint.

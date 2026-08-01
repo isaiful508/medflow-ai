@@ -41,6 +41,11 @@ npm install
 npm run dev             # http://localhost:5000
 ```
 
+### Notes
+- The backend listens on `http://localhost:5000` and mounts API routes under `/api`
+- Auth endpoints: `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout`
+- Doctor creation endpoint: `POST /api/doctors`
+
 ---
 
 ## 🏗️ Project Structure

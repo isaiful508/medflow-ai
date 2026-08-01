@@ -50,6 +50,12 @@ src/
     │   │   ├── auth.controller.ts
     │   │   ├── auth.service.ts
     │   │   └── auth.route.ts
+    │   ├── doctor/               # Doctor registration module
+    │   │   ├── doctor.interface.ts
+    │   │   ├── doctor.validation.ts
+    │   │   ├── doctor.controller.ts
+    │   │   ├── doctor.service.ts
+    │   │   └── doctor.route.ts
     │   ├── user/                 # User Mongoose model
     │   │   ├── user.interface.ts
     │   │   └── user.model.ts
@@ -174,6 +180,7 @@ Future env vars (in `.env.example`): `OPENAI_API_KEY`, `REDIS_URL`, `EMAIL_*`, `
 | POST | `/api/auth/login` | No | Login |
 | POST | `/api/auth/refresh` | No | Refresh access token |
 | POST | `/api/auth/logout` | No | Logout (clear refresh token) |
+| POST | `/api/doctors` | No | Create a doctor and linked user account |
 
 ## Security
 
