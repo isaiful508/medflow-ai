@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/DataTable";
 import { cn } from "@/lib/utils";
+import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -73,17 +74,24 @@ export function DataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} colSpan={header.colSpan}>
+                <TableHead key={header.id} colSpan={header.colSpan} 
+                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.16em] text-(--mc-text-50)"
+                >
                   {header.isPlaceholder ? null : (
                     <div
-                      className={header.column.getCanSort() ? "flex items-center gap-2 cursor-pointer select-none" : "flex items-center gap-2"}
+                      className={header.column.getCanSort() ? "flex items-center gap-1.5 cursor-pointer select-none" : "flex items-center gap-1.5"}
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       {flexRender(header.column.columnDef.header, header.getContext())}
-                      {{
-                        asc: "↑",
-                        desc: "↓",
-                      }[header.column.getIsSorted() as string] ?? null}
+                      {header.column.getCanSort() ? (
+                        header.column.getIsSorted() === "asc" ? (
+                          <ArrowUp className="size-3.5 text-(--mc-fg)" />
+                        ) : header.column.getIsSorted() === "desc" ? (
+                          <ArrowDown className="size-3.5 text-(--mc-fg)" />
+                        ) : (
+                          <ChevronsUpDown className="size-3.5 text-(--mc-text-50)" />
+                        )
+                      ) : null}
                     </div>
                   )}
                 </TableHead>
