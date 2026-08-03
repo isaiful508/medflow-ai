@@ -86,8 +86,8 @@ export const TableRow = React.forwardRef<
 TableRow.displayName = "TableRow";
 
 export const TableHead = React.forwardRef<
-  HTMLThElement,
-  React.ThHTMLAttributes<HTMLThElement> & { sortable?: boolean }
+  React.ElementRef<"th">,
+  React.ThHTMLAttributes<React.ElementRef<"th">> & { sortable?: boolean }
 >(({ className, sortable, children, ...props }, ref) => (
   <th
     ref={ref}

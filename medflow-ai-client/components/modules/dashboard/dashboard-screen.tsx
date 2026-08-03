@@ -23,27 +23,27 @@ export function DashboardScreen() {
   const { user } = useUser();
   const isAdmin = user?.role === "admin";
 
-  const summaryCards = isAdmin
+  const summaryCards: Array<{ label: string; value: string; tone: keyof typeof toneClass; change: string }> = isAdmin
     ? [
         { label: "Total Patients", value: "124", tone: "blue", change: "↑ 8 this week" },
         { label: "Active Doctors", value: "18", tone: "green", change: "↑ 2 this month" },
         { label: "Pending Visits", value: "9", tone: "amber", change: "3 need follow-up" },
         { label: "Weekly Revenue", value: "$18.2k", tone: "purple", change: "↑ 12% vs last week" },
       ]
-    : statCards;
+    : (statCards as unknown as Array<{ label: string; value: string; tone: keyof typeof toneClass; change: string }>);
 
-  const quickActions = isAdmin
+  const quickActions: Array<{ label: string; tone: keyof typeof toneClass; href: string }> = isAdmin
     ? [
-        { label: "Add Patient", tone: "blue" as const, href: "/patients" },
-        { label: "Add Doctor", tone: "green" as const, href: "/doctors" },
-        { label: "Appointments", tone: "purple" as const, href: "/appointments" },
-        { label: "Profile", tone: "amber" as const, href: "/profile" },
+        { label: "Add Patient", tone: "blue", href: "/patients" },
+        { label: "Add Doctor", tone: "green", href: "/doctors" },
+        { label: "Appointments", tone: "purple", href: "/appointments" },
+        { label: "Profile", tone: "amber", href: "/profile" },
       ]
     : [
-        { label: "AI Check", tone: "blue" as const, href: "/ai-checker" },
-        { label: "Book Appt", tone: "green" as const, href: "/appointments" },
-        { label: "Video Call", tone: "purple" as const, href: "/video-call" },
-        { label: "Records", tone: "amber" as const, href: "/profile" },
+        { label: "AI Check", tone: "blue", href: "/ai-checker" },
+        { label: "Book Appt", tone: "green", href: "/appointments" },
+        { label: "Video Call", tone: "purple", href: "/video-call" },
+        { label: "Records", tone: "amber", href: "/profile" },
       ];
 
   return (

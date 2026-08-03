@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 // import type { Doctor, DoctorForm } from "./types";
 
@@ -54,11 +55,13 @@ interface CreateDoctorProps {
   editingDoctor: Doctor | null;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const STEPS = ["Personal", "Professional", "Practice & Access"] as const;
 
-export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose }: CreateDoctorProps) {
+export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose, open = true, onOpenChange }: CreateDoctorProps) {
   const isEditing = Boolean(editingDoctor?.id);
   const [step, setStep] = useState(0);
   const isLastStep = step === STEPS.length - 1;
@@ -98,22 +101,30 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-2xl rounded-sm border border-(--mc-border) bg-(--mc-card) p-6 shadow-xl">
-        <div className="flex items-start justify-between border-b py-4 border-(--mc-border) gap-3">
-          <div>
-            <p className="text-lg font-semibold">{isEditing ? "Edit doctor" : "Add doctor"}</p>
-            <p className="mt-1 text-sm text-(--mc-text-40)">
-              {isEditing ? "Update doctor details below." : "Create a new doctor profile."}
-            </p>
-          </div>
-          <button type="button" onClick={onClose} className="rounded-full border border-(--mc-border) p-2 text-(--mc-text-50) cursor-pointer">
-            <X className="size-4" />
-          </button>
-        </div>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isEditing ? "Edit doctor" : "Add doctor"}
+      description={isEditing ? "Update doctor details below." : "Create a new doctor profile."}
+      // className="max-w-2xl"
+      footer={(
+        <>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={stepErrors.length > 0}>
+            {isLastStep ? (isEditing ? "Save changes" : "Create doctor") : (
+              <>
+                Next <ChevronRight className="size-4" />
+              </>
+            )}
+          </Button>
+        </>
+      )}
+    >
 
-        {/* Step indicator */}
-        <div className="mt-5 flex items-center gap-2">
+      {/* Step indicator */}
+      <div className="mt-4 flex items-center gap-2">
           {STEPS.map((label, i) => (
             <div key={label} className="flex flex-1 items-center gap-2">
               <div
@@ -245,28 +256,13 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose }
 
           {/* Nav buttons */}
           <div className="mt-6 flex items-center justify-between gap-2">
-            <div>
-              {step > 0 && (
-                <Button type="button" variant="outline" onClick={goBack}>
-                  <ChevronLeft className="size-4" /> Back
-                </Button>
-              )}
-            </div>
-            <div className="flex gap-2 border-t border-(--mc-border) pt-4 w-full justify-end">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+            {step > 0 ? (
+              <Button type="button" variant="outline" onClick={goBack}>
+                <ChevronLeft className="size-4" /> Back
               </Button>
-              <Button type="submit" disabled={stepErrors.length > 0}>
-                {isLastStep ? (isEditing ? "Save changes" : "Create doctor") : (
-                  <>
-                    Next <ChevronRight className="size-4" />
-                  </>
-                )}
-              </Button>
-            </div>
+            ) : <div />}
           </div>
         </form>
-      </div>
-    </div>
+    </Dialog>
   );
 }

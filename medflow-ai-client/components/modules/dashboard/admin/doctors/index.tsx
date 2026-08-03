@@ -336,7 +336,17 @@ export function Doctors() {
       </GlassCard>
 
       {isModalOpen ? (
-        <CreateDoctor form={form} setForm={setForm} editingDoctor={editingDoctor} onSubmit={handleSubmit} onClose={closeModal} />
+        <CreateDoctor
+          form={form}
+          setForm={setForm}
+          editingDoctor={editingDoctor}
+          onSubmit={handleSubmit}
+          onClose={closeModal}
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            if (!open) closeModal();
+          }}
+        />
       ) : null}
 
       {isDeleteDialogOpen ? (
