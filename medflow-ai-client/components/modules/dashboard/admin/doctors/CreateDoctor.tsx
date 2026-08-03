@@ -99,15 +99,15 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-2xl rounded-3xl border border-(--mc-border) bg-(--mc-card) p-6 shadow-2xl">
-        <div className="flex items-start justify-between gap-3">
+      <div className="w-full max-w-2xl rounded-sm border border-(--mc-border) bg-(--mc-card) p-6 shadow-xl">
+        <div className="flex items-start justify-between border-b py-4 border-(--mc-border) gap-3">
           <div>
             <p className="text-lg font-semibold">{isEditing ? "Edit doctor" : "Add doctor"}</p>
             <p className="mt-1 text-sm text-(--mc-text-40)">
               {isEditing ? "Update doctor details below." : "Create a new doctor profile."}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-full border border-(--mc-border) p-2 text-(--mc-text-50)">
+          <button type="button" onClick={onClose} className="rounded-full border border-(--mc-border) p-2 text-(--mc-text-50) cursor-pointer">
             <X className="size-4" />
           </button>
         </div>
@@ -252,7 +252,7 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose }
                 </Button>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 border-t border-(--mc-border) pt-4 w-full justify-end">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>

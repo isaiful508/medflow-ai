@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 

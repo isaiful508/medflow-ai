@@ -51,20 +51,21 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-6", className)}>
       {search ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="">
           <Input
             placeholder={placeholder}
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
-          <div className="flex items-center gap-2">
+          {/* It will be fixed later now need not */}
+          {/* <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => table.resetSorting()}>
               Reset sort
             </Button>
-          </div>
+          </div> */}
         </div>
       ) : null}
 

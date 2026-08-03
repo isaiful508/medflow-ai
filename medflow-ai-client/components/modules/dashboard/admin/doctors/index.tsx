@@ -322,10 +322,12 @@ export function Doctors() {
   return (
     <div className="space-y-4">
       <GlassCard>
-          <Button type="button" onClick={openCreateModal} className="gap-2">
+          <div className="flex  justify-end">
+            <Button type="button" onClick={openCreateModal} className="gap-2">
             <Plus className="size-4" />
             Add doctor
-          </Button>
+          </Button> 
+          </div>
         <DoctorListsTable
           doctors={doctors}
           columns={doctorColumns}
