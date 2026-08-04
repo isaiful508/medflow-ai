@@ -7,6 +7,8 @@ import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
 import { createActionColumn, useCrudDialog } from "../../admin-list-utils";
 import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CreatePatient, type Patient, type PatientForm } from "./CreatePatient";
+import { CredentialsRevealModal, type OneTimeCredentials } from "./CredentialsModal";
+import { generateSecurePassword } from "@/lib/generatePassword";
 import { PatientListsTable } from "./PatientListsTable";
 
 const initialPatients: Patient[] = [
@@ -15,9 +17,15 @@ const initialPatients: Patient[] = [
     name: "Ava Collins",
     email: "ava.collins@medflow.ai",
     phone: "+1 202 555 0148",
+    gender: "Female",
+    dateOfBirth: "1990-04-12",
+    bloodGroup: "O+",
     status: "Active",
     lastVisit: "2026-07-10",
     doctor: "Dr. Priya Kapoor",
+    allergies: "Penicillin",
+    emergencyContactName: "James Collins",
+    emergencyContactPhone: "+1 202 555 0199",
     notes: "Routine follow-up and medication review.",
   },
   {
@@ -25,9 +33,15 @@ const initialPatients: Patient[] = [
     name: "Noah Patel",
     email: "noah.patel@medflow.ai",
     phone: "+1 202 555 0184",
+    gender: "Male",
+    dateOfBirth: "1985-11-02",
+    bloodGroup: "A+",
     status: "Pending",
     lastVisit: "2026-06-28",
     doctor: "Dr. Michael Reed",
+    allergies: "",
+    emergencyContactName: "Priya Patel",
+    emergencyContactPhone: "+1 202 555 0155",
     notes: "Awaiting cardiology assessment.",
   },
   {
@@ -35,9 +49,15 @@ const initialPatients: Patient[] = [
     name: "Mia Thompson",
     email: "mia.thompson@medflow.ai",
     phone: "+1 202 555 0162",
+    gender: "Female",
+    dateOfBirth: "1978-02-20",
+    bloodGroup: "B-",
     status: "Critical",
     lastVisit: "2026-07-12",
     doctor: "Dr. Aisha Loren",
+    allergies: "Latex",
+    emergencyContactName: "Rob Thompson",
+    emergencyContactPhone: "+1 202 555 0133",
     notes: "Recent lab anomaly requires urgent review.",
   },
 ];
@@ -46,14 +66,23 @@ const emptyForm: PatientForm = {
   name: "",
   email: "",
   phone: "",
+  gender: "Male",
+  dateOfBirth: "",
+  bloodGroup: "",
   status: "Active",
   lastVisit: "",
   doctor: "",
+  allergies: "",
+  emergencyContactName: "",
+  emergencyContactPhone: "",
   notes: "",
 };
 
 export function Patients() {
   const [patients, setPatients] = useState(initialPatients);
+
+  // Lives ONLY in memory, only between "just created" and "admin closed the modal"
+  const [credentials, setCredentials] = useState<OneTimeCredentials | null>(null);
 
   const {
     form,
@@ -71,9 +100,15 @@ export function Patients() {
     name: patient.name,
     email: patient.email,
     phone: patient.phone,
+    gender: patient.gender,
+    dateOfBirth: patient.dateOfBirth,
+    bloodGroup: patient.bloodGroup,
     status: patient.status,
     lastVisit: patient.lastVisit,
     doctor: patient.doctor,
+    allergies: patient.allergies,
+    emergencyContactName: patient.emergencyContactName,
+    emergencyContactPhone: patient.emergencyContactPhone,
     notes: patient.notes,
   }));
 
@@ -84,14 +119,9 @@ export function Patients() {
         header: "Name",
         cell: ({ getValue }: CellContext<Patient, string>) => <span className="font-medium text-(--mc-fg)">{getValue()}</span>,
       },
-      {
-        accessorKey: "email",
-        header: "Email",
-      },
-      {
-        accessorKey: "phone",
-        header: "Phone",
-      },
+      { accessorKey: "email", header: "Email" },
+      { accessorKey: "doctor", header: "Assigned doctor" },
+      { accessorKey: "bloodGroup", header: "Blood group" },
       {
         accessorKey: "status",
         header: "Status",
@@ -99,10 +129,7 @@ export function Patients() {
           <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-xs text-blue-300">{getValue()}</span>
         ),
       },
-      {
-        accessorKey: "lastVisit",
-        header: "Last visit",
-      },
+      { accessorKey: "lastVisit", header: "Last visit" },
       createActionColumn(openEditModal, openDeleteDialog),
     ],
     [openDeleteDialog, openEditModal],
@@ -113,12 +140,28 @@ export function Patients() {
     if (!form.name || !form.email) return;
 
     if (editingPatient) {
-      setPatients((current) => current.map((patient) => (patient.id === editingPatient.id ? { ...patient, ...form, id: patient.id } : patient)));
-    } else {
-      setPatients((current) => [{ ...form, id: Date.now() }, ...current]);
+      // --- UPDATE (no password involved) ---
+      setPatients((current) =>
+        current.map((patient) => (patient.id === editingPatient.id ? { ...patient, ...form, id: patient.id } : patient)),
+      );
+      closeModal();
+      return;
     }
 
+    // --- CREATE ---
+    const password = generateSecurePassword();
+
+    // Replace with your real API call, e.g.:
+    // const res = await fetch("/api/patients", { method: "POST", body: JSON.stringify({ ...form, password }) });
+    // const created: Patient = await res.json();
+    const created: Patient = { ...form, id: Date.now() };
+
+    setPatients((current) => [created, ...current]);
     closeModal();
+
+    // Show credentials exactly once. Nothing else in the app holds onto
+    // this password after the modal closes — admin must save it now.
+    setCredentials({ email: form.email, password });
   };
 
   const handleDeleteConfirm = () => {
@@ -145,7 +188,17 @@ export function Patients() {
       </GlassCard>
 
       {isModalOpen ? (
-        <CreatePatient form={form} setForm={setForm} editingPatient={editingPatient} onSubmit={handleSubmit} onClose={closeModal} />
+        <CreatePatient
+          form={form}
+          setForm={setForm}
+          editingPatient={editingPatient}
+          onSubmit={handleSubmit}
+          onClose={closeModal}
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            if (!open) closeModal();
+          }}
+        />
       ) : null}
 
       {isDeleteDialogOpen ? (
@@ -159,6 +212,14 @@ export function Patients() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {credentials ? (
+        <CredentialsRevealModal
+          credentials={credentials}
+          roleLabel="patient"
+          onClose={() => setCredentials(null)}
+        />
       ) : null}
     </div>
   );
