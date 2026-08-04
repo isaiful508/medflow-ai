@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CardHeader, GlassCard } from "@/components/shared/ui-helpers";
 import { createActionColumn, useCrudDialog } from "../../admin-list-utils";
@@ -192,7 +193,7 @@ export function Patients() {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unable to create patient";
       console.error(message);
-      alert(message);
+      toast.error(message);
     }
   };
 
