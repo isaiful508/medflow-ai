@@ -9,6 +9,7 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CreatePatient, type Patient, type PatientForm } from "./CreatePatient";
 import { CredentialsRevealModal, type OneTimeCredentials } from "./CredentialsModal";
 import { generateSecurePassword } from "@/lib/generatePassword";
+import API from "@/lib/api";
 import { PatientListsTable } from "./PatientListsTable";
 
 const initialPatients: Patient[] = [
@@ -135,7 +136,7 @@ export function Patients() {
     [openDeleteDialog, openEditModal],
   );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!form.name || !form.email) return;
 
@@ -149,19 +150,50 @@ export function Patients() {
     }
 
     // --- CREATE ---
-    const password = generateSecurePassword();
+    const password = generateSecurePassword(6);
 
-    // Replace with your real API call, e.g.:
-    // const res = await fetch("/api/patients", { method: "POST", body: JSON.stringify({ ...form, password }) });
-    // const created: Patient = await res.json();
-    const created: Patient = { ...form, id: Date.now() };
+    try {
+      const response = await API.post("/patients", {
+        fullName: form.name,
+        email: form.email,
+        phone: form.phone,
+        status: form.status,
+        lastVisit: form.lastVisit,
+        doctor: form.doctor,
+        notes: form.notes,
+        password,
+      });
 
-    setPatients((current) => [created, ...current]);
-    closeModal();
+      const createdPatient = response.data?.data?.patient;
+      if (!createdPatient) {
+        throw new Error("Patient creation failed. No patient returned.");
+      }
 
-    // Show credentials exactly once. Nothing else in the app holds onto
-    // this password after the modal closes — admin must save it now.
-    setCredentials({ email: form.email, password });
+      const patientForTable: Patient = {
+        id: createdPatient?.id ?? Date.now(),
+        name: createdPatient?.fullName ?? form.name,
+        email: createdPatient?.email ?? form.email,
+        phone: createdPatient?.phone ?? form.phone,
+        gender: form.gender,
+        dateOfBirth: form.dateOfBirth,
+        bloodGroup: form.bloodGroup,
+        status: createdPatient?.status ?? form.status,
+        lastVisit: createdPatient?.lastVisit ?? form.lastVisit,
+        doctor: createdPatient?.doctor ?? form.doctor,
+        allergies: form.allergies,
+        emergencyContactName: form.emergencyContactName,
+        emergencyContactPhone: form.emergencyContactPhone,
+        notes: createdPatient?.notes ?? form.notes,
+      };
+
+      setPatients((current) => [patientForTable, ...current]);
+      closeModal();
+      setCredentials({ email: form.email, password });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unable to create patient";
+      console.error(message);
+      alert(message);
+    }
   };
 
   const handleDeleteConfirm = () => {

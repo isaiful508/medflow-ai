@@ -8,4 +8,5 @@ export const createPatientValidationSchema = z.object({
   lastVisit: z.string().trim().optional().default(""),
   doctor: z.string().trim().optional().default(""),
   notes: z.string().trim().optional().default(""),
+  password: z.string().min(6, "Password must be at least 6 characters long").optional(),
 });

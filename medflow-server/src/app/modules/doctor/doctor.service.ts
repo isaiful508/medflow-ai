@@ -92,7 +92,6 @@ const createDoctor = async (payload: CreateDoctorPayload) => {
       availability: doctor.availability,
       status: doctor.status,
     },
-    password,
   };
 };
 

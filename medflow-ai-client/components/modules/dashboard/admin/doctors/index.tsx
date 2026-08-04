@@ -287,6 +287,10 @@ export function Doctors() {
       });
 
       const createdDoctor = response.data?.data?.doctor;
+      if (!createdDoctor) {
+        throw new Error("Doctor creation failed. No doctor returned.");
+      }
+
       const doctorForTable: Doctor = {
         id: createdDoctor?.id ?? Date.now(),
         name: createdDoctor?.fullName ?? form.name,

@@ -1,5 +1,7 @@
+import bcrypt from "bcrypt";
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
+import config from "../../config";
 import { getNextSequenceValue } from "../counter/counter.utils";
 import Patient from "./patient.model";
 import User from "../user/user.model";
@@ -13,6 +15,7 @@ export type CreatePatientPayload = {
   lastVisit: string;
   doctor: string;
   notes: string;
+  password?: string;
 };
 
 const createPatient = async (payload: CreatePatientPayload) => {
@@ -31,11 +34,14 @@ const createPatient = async (payload: CreatePatientPayload) => {
   const nextUserId = await getNextSequenceValue("userId");
   const nextPatientId = await getNextSequenceValue("patientId");
 
+  const password = payload.password ?? "Medflow@123";
+  const hashedPassword = await bcrypt.hash(password, config.bcrypt_salt_rounds);
+
   const user = await User.create({
     userId: nextUserId,
     fullName: payload.fullName,
     email: payload.email,
-    password: "Medflow@123",
+    password: hashedPassword,
     mobile: payload.phone,
     role: "patient",
     termsAccepted: true,
