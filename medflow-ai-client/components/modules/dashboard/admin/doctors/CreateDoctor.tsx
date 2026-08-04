@@ -106,21 +106,6 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose, 
       onOpenChange={onOpenChange}
       title={isEditing ? "Edit doctor" : "Add doctor"}
       description={isEditing ? "Update doctor details below." : "Create a new doctor profile."}
-      // className="max-w-2xl"
-      footer={(
-        <>
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={stepErrors.length > 0}>
-            {isLastStep ? (isEditing ? "Save changes" : "Create doctor") : (
-              <>
-                Next <ChevronRight className="size-4" />
-              </>
-            )}
-          </Button>
-        </>
-      )}
     >
 
       {/* Step indicator */}
@@ -145,7 +130,7 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose, 
         </div>
 
         <form onSubmit={handleSubmit} className="mt-5">
-          {/* Step 1: Personal */}
+          {/* Step 1: Personal */} 
           {step === 0 && (
             <div className="grid gap-3 md:grid-cols-2">
               <Input
@@ -157,11 +142,10 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose, 
               <select
                 value={form.gender}
                 onChange={(e) => setForm((prev) => ({ ...prev, gender: e.target.value as Doctor["gender"] }))}
-                className="h-9 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none"
+                className="h-10 w-full rounded-sm border border-input bg-transparent p-2 text-sm outline-none"
               >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-                <option value="Other">Other</option>
               </select>
               <Input
                 type="email"
@@ -261,6 +245,19 @@ export function CreateDoctor({ form, setForm, editingDoctor, onSubmit, onClose, 
                 <ChevronLeft className="size-4" /> Back
               </Button>
             ) : <div />}
+          </div>
+
+          <div className="pt-4 border-t border-(--mc-border)  flex items-center justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={stepErrors.length > 0}>
+            {isLastStep ? (isEditing ? "Save changes" : "Create doctor") : (
+              <>
+                Next <ChevronRight className="size-4" />
+              </>
+            )}
+          </Button>
           </div>
         </form>
     </Dialog>
