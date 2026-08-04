@@ -17,6 +17,21 @@ const createPatient = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+const getPatients = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const patients = await PatientService.getAllPatients();
+
+    res.status(200).json({
+      success: true,
+      message: "Patients retrieved successfully",
+      data: { patients },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const PatientController = {
   createPatient,
+  getPatients,
 };

@@ -17,6 +17,21 @@ const createDoctor = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+const getDoctors = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const doctors = await DoctorService.getAllDoctors();
+
+    res.status(200).json({
+      success: true,
+      message: "Doctors retrieved successfully",
+      data: { doctors },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const DoctorController = {
   createDoctor,
+  getDoctors,
 };

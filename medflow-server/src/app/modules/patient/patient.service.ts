@@ -80,6 +80,22 @@ const createPatient = async (payload: CreatePatientPayload) => {
   };
 };
 
+const getAllPatients = async () => {
+  const patients = await Patient.find().sort({ createdAt: -1 });
+  return patients.map((patient) => ({
+    id: patient.patientId,
+    userId: patient.userId,
+    fullName: patient.fullName,
+    email: patient.email,
+    phone: patient.phone,
+    status: patient.status,
+    lastVisit: patient.lastVisit,
+    doctor: patient.doctor,
+    notes: patient.notes,
+  }));
+};
+
 export const PatientService = {
   createPatient,
+  getAllPatients,
 };

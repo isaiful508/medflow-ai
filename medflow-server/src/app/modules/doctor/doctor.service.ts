@@ -95,6 +95,27 @@ const createDoctor = async (payload: CreateDoctorPayload) => {
   };
 };
 
+const getAllDoctors = async () => {
+  const doctors = await Doctor.find().sort({ createdAt: -1 });
+  return doctors.map((doctor) => ({
+    id: doctor.doctorId,
+    userId: doctor.userId,
+    fullName: doctor.fullName,
+    specialty: doctor.specialty,
+    email: doctor.email,
+    phone: doctor.phone,
+    gender: doctor.gender,
+    licenseNumber: doctor.licenseNumber,
+    qualification: doctor.qualification,
+    experienceYears: doctor.experienceYears,
+    department: doctor.department,
+    consultationFee: doctor.consultationFee,
+    availability: doctor.availability,
+    status: doctor.status,
+  }));
+};
+
 export const DoctorService = {
   createDoctor,
+  getAllDoctors,
 };
