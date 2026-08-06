@@ -11,7 +11,7 @@ import { CreateDoctor, type Doctor, type DoctorForm } from "./CreateDoctor";
 import { DoctorCredentialsModal } from "./CredentialsModal";
 import { DoctorListsTable } from "./DoctorListsTable";
 import { generateSecurePassword } from "@/lib/generatePassword";
-import API from "@/lib/api";
+import { createDoctor } from "@/services/DoctorsService";
 
 export type DoctorCredentials = {
   email: string;
@@ -271,7 +271,7 @@ export function Doctors() {
     const password = generateSecurePassword(6);
 
     try {
-      const response = await API.post("/doctors", {
+      const response = await createDoctor({
         fullName: form.name,
         specialty: form.specialty,
         email: form.email,
@@ -287,7 +287,14 @@ export function Doctors() {
         password,
       });
 
-      const createdDoctor = response.data?.data?.doctor;
+      if (!response.success) {
+        throw new Error(response.message || "Doctor creation failed.");
+      }
+
+      const createdDoctor = (response.data as Record<string, unknown> | undefined)?.doctor as
+        | (Record<string, unknown> & { id?: number; fullName?: string; specialty?: string; email?: string; phone?: string; gender?: Doctor["gender"]; licenseNumber?: string; qualification?: string; experienceYears?: number; department?: string; consultationFee?: number; availability?: string; status?: Doctor["status"] })
+        | undefined;
+
       if (!createdDoctor) {
         throw new Error("Doctor creation failed. No doctor returned.");
       }

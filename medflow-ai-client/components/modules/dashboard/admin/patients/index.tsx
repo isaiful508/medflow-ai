@@ -10,7 +10,7 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CreatePatient, type Patient, type PatientForm } from "./CreatePatient";
 import { CredentialsRevealModal, type OneTimeCredentials } from "./CredentialsModal";
 import { generateSecurePassword } from "@/lib/generatePassword";
-import API from "@/lib/api";
+import { createPatient } from "@/services/PatientsService";
 import { PatientListsTable } from "./PatientListsTable";
 
 const initialPatients: Patient[] = [
@@ -154,7 +154,7 @@ export function Patients() {
     const password = generateSecurePassword(6);
 
     try {
-      const response = await API.post("/patients", {
+      const response = await createPatient({
         fullName: form.name,
         email: form.email,
         phone: form.phone,
@@ -165,7 +165,14 @@ export function Patients() {
         password,
       });
 
-      const createdPatient = response.data?.data?.patient;
+      if (!response.success) {
+        throw new Error(response.message || "Patient creation failed.");
+      }
+
+      const createdPatient = (response.data as Record<string, unknown> | undefined)?.patient as
+        | (Record<string, unknown> & { id?: number; fullName?: string; email?: string; phone?: string; status?: Patient["status"]; lastVisit?: string; doctor?: string; notes?: string })
+        | undefined;
+
       if (!createdPatient) {
         throw new Error("Patient creation failed. No patient returned.");
       }
