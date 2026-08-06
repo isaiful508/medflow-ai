@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,59 +10,8 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CreatePatient, type Patient, type PatientForm } from "./CreatePatient";
 import { CredentialsRevealModal, type OneTimeCredentials } from "./CredentialsModal";
 import { generateSecurePassword } from "@/lib/generatePassword";
-import { createPatient } from "@/services/PatientsService";
+import { createPatient, getPatients } from "@/services/PatientsService";
 import { PatientListsTable } from "./PatientListsTable";
-
-const initialPatients: Patient[] = [
-  {
-    id: 1,
-    name: "Ava Collins",
-    email: "ava.collins@medflow.ai",
-    phone: "+1 202 555 0148",
-    gender: "Female",
-    dateOfBirth: "1990-04-12",
-    bloodGroup: "O+",
-    status: "Active",
-    lastVisit: "2026-07-10",
-    doctor: "Dr. Priya Kapoor",
-    allergies: "Penicillin",
-    emergencyContactName: "James Collins",
-    emergencyContactPhone: "+1 202 555 0199",
-    notes: "Routine follow-up and medication review.",
-  },
-  {
-    id: 2,
-    name: "Noah Patel",
-    email: "noah.patel@medflow.ai",
-    phone: "+1 202 555 0184",
-    gender: "Male",
-    dateOfBirth: "1985-11-02",
-    bloodGroup: "A+",
-    status: "Pending",
-    lastVisit: "2026-06-28",
-    doctor: "Dr. Michael Reed",
-    allergies: "",
-    emergencyContactName: "Priya Patel",
-    emergencyContactPhone: "+1 202 555 0155",
-    notes: "Awaiting cardiology assessment.",
-  },
-  {
-    id: 3,
-    name: "Mia Thompson",
-    email: "mia.thompson@medflow.ai",
-    phone: "+1 202 555 0162",
-    gender: "Female",
-    dateOfBirth: "1978-02-20",
-    bloodGroup: "B-",
-    status: "Critical",
-    lastVisit: "2026-07-12",
-    doctor: "Dr. Aisha Loren",
-    allergies: "Latex",
-    emergencyContactName: "Rob Thompson",
-    emergencyContactPhone: "+1 202 555 0133",
-    notes: "Recent lab anomaly requires urgent review.",
-  },
-];
 
 const emptyForm: PatientForm = {
   name: "",
@@ -81,7 +30,7 @@ const emptyForm: PatientForm = {
 };
 
 export function Patients() {
-  const [patients, setPatients] = useState(initialPatients);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
   // Lives ONLY in memory, only between "just created" and "admin closed the modal"
   const [credentials, setCredentials] = useState<OneTimeCredentials | null>(null);
@@ -113,6 +62,43 @@ export function Patients() {
     emergencyContactPhone: patient.emergencyContactPhone,
     notes: patient.notes,
   }));
+
+  useEffect(() => {
+    const loadPatients = async () => {
+      const response = await getPatients();
+
+      if (!response.success) {
+        toast.error(response.message || "Unable to load patients");
+        return;
+      }
+
+      const payload = response.data as unknown;
+      const patientList = Array.isArray(payload)
+        ? payload
+        : ((payload as { patients?: unknown[] })?.patients ?? []);
+
+      const mappedPatients: Patient[] = (patientList as Record<string, unknown>[]).map((patient) => ({
+        id: Number(patient.id ?? Date.now()),
+        name: String(patient.fullName ?? patient.name ?? ""),
+        email: String(patient.email ?? ""),
+        phone: String(patient.phone ?? ""),
+        gender: (patient.gender as Patient["gender"]) ?? "Male",
+        dateOfBirth: String(patient.dateOfBirth ?? ""),
+        bloodGroup: String(patient.bloodGroup ?? ""),
+        status: (patient.status as Patient["status"]) ?? "Active",
+        lastVisit: String(patient.lastVisit ?? ""),
+        doctor: String(patient.doctor ?? ""),
+        allergies: String(patient.allergies ?? ""),
+        emergencyContactName: String(patient.emergencyContactName ?? ""),
+        emergencyContactPhone: String(patient.emergencyContactPhone ?? ""),
+        notes: String(patient.notes ?? ""),
+      }));
+
+      setPatients(mappedPatients);
+    };
+
+    void loadPatients();
+  }, []);
 
   const patientColumns = useMemo<ColumnDef<Patient>[]>(
     () => [
