@@ -47,10 +47,11 @@ export const getPatients = async () => {
       success: true,
       data: patients,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unable to fetch patients";
     return {
       success: false,
-      message: error?.message || "Unable to fetch patients",
+      message,
       data: [],
     };
   }
@@ -78,10 +79,11 @@ export const createPatient = async (patientData: Record<string, unknown>) => {
       success: true,
       data: result?.data ?? result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unable to create patient";
     return {
       success: false,
-      message: error?.message || "Unable to create patient",
+      message,
     };
   }
 };

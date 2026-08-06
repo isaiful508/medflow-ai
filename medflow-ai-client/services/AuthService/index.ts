@@ -20,8 +20,8 @@ export const registerUser = async (userData: FieldValues) => {
     }
 
     return result;
-  } catch (error: any) {
-    return Error(error);
+  } catch (error: unknown) {
+    return Error(error instanceof Error ? error.message : "Unable to register user");
   }
 };
 
@@ -42,8 +42,8 @@ export const loginUser = async (userData: FieldValues) => {
     }
 
     return result;
-  } catch (error: any) {
-    return Error(error);
+  } catch (error: unknown) {
+    return Error(error instanceof Error ? error.message : "Unable to login user");
   }
 };
 
