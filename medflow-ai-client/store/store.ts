@@ -1,15 +1,13 @@
-import { combineReducers, createStore } from "redux";
-import { doctorsReducer, DoctorsState } from "@/store/doctorSlice";
-import { patientsReducer, PatientsState } from "@/store/patientSlice";
+import { configureStore } from "@reduxjs/toolkit";
+import doctorsReducer from "@/store/doctorSlice";
+import patientsReducer from "@/store/patientSlice";
 
-export interface RootState {
-  doctors: DoctorsState;
-  patients: PatientsState;
-}
-
-const rootReducer = combineReducers({
-  doctors: doctorsReducer,
-  patients: patientsReducer,
+export const store = configureStore({
+  reducer: {
+    doctors: doctorsReducer,
+    patients: patientsReducer,
+  },
 });
 
-export const store = createStore(rootReducer);
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

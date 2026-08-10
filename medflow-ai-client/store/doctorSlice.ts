@@ -1,3 +1,5 @@
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { getDoctors, createDoctor as svcCreateDoctor } from "@/services/DoctorsService";
 import { Doctor } from "@/store/types";
 
 export interface DoctorsState {
@@ -14,43 +16,118 @@ const initialState: DoctorsState = {
   error: null,
 };
 
-type DoctorsAction =
-  | { type: "doctors/loadStart" }
-  | { type: "doctors/loadSuccess"; payload: Doctor[] }
-  | { type: "doctors/loadFailure"; payload: string }
-  | { type: "doctors/select"; payload: number | null }
-  | { type: "doctors/add"; payload: Doctor }
-  | { type: "doctors/update"; payload: Doctor }
-  | { type: "doctors/remove"; payload: number };
-
-export const doctorsReducer = (
-  state = initialState,
-  action: DoctorsAction
-): DoctorsState => {
-  switch (action.type) {
-    case "doctors/loadStart":
-      return { ...state, isLoading: true, error: null };
-    case "doctors/loadSuccess":
-      return { ...state, isLoading: false, list: action.payload, error: null };
-    case "doctors/loadFailure":
-      return { ...state, isLoading: false, error: action.payload };
-    case "doctors/select":
-      return { ...state, selectedDoctorId: action.payload };
-    case "doctors/add":
-      return { ...state, list: [...state.list, action.payload] };
-    case "doctors/update":
-      return {
-        ...state,
-        list: state.list.map((doctor) =>
-          doctor.id === action.payload.id ? action.payload : doctor
-        ),
-      };
-    case "doctors/remove":
-      return {
-        ...state,
-        list: state.list.filter((doctor) => doctor.id !== action.payload),
-      };
-    default:
-      return state;
+export const fetchDoctors = createAsyncThunk<Doctor[], void, { rejectValue: string }>(
+  "doctors/fetch",
+  async (_, thunkAPI) => {
+    try {
+      const response = await getDoctors();
+      if (!response.success) return thunkAPI.rejectWithValue(response.message || "Unable to load doctors");
+      const payload = response.data as unknown;
+      const doctorList = Array.isArray(payload) ? payload : ((payload as { doctors?: unknown[] })?.doctors ?? []);
+      const mapped: Doctor[] = (doctorList as Record<string, unknown>[]).map((doctor) => ({
+        id: Number(doctor.id ?? Date.now()),
+        name: String(doctor.fullName ?? doctor.name ?? ""),
+        specialty: String(doctor.specialty ?? ""),
+        email: String(doctor.email ?? ""),
+        phone: String(doctor.phone ?? ""),
+        gender: (doctor.gender as Doctor["gender"]) ?? "Male",
+        licenseNumber: String(doctor.licenseNumber ?? ""),
+        qualification: String(doctor.qualification ?? ""),
+        experienceYears: Number(doctor.experienceYears ?? 0),
+        department: String(doctor.department ?? ""),
+        consultationFee: Number(doctor.consultationFee ?? 0),
+        availability: String(doctor.availability ?? ""),
+        status: (doctor.status as Doctor["status"]) ?? "Available",
+      }));
+      return mapped;
+    } catch (e) {
+      return thunkAPI.rejectWithValue((e as Error)?.message ?? "Unable to load doctors");
+    }
   }
-};
+);
+
+export const createDoctor = createAsyncThunk<Doctor, Record<string, unknown>, { rejectValue: string }>(
+  "doctors/create",
+  async (payload, thunkAPI) => {
+    try {
+      const res = await svcCreateDoctor(payload);
+      if (!res.success) return thunkAPI.rejectWithValue(res.message || "Unable to create doctor");
+      const data = (res.data as Record<string, unknown> | undefined)?.doctor ?? (res.data as Record<string, unknown>);
+      const doctor: Doctor = {
+        id: Number(data?.id ?? Date.now()),
+        name: String(data?.fullName ?? payload.fullName ?? payload.name ?? ""),
+        specialty: String(data?.specialty ?? payload.specialty ?? ""),
+        email: String(data?.email ?? payload.email ?? ""),
+        phone: String(data?.phone ?? payload.phone ?? ""),
+        gender: (data?.gender as Doctor["gender"]) ?? (payload.gender as Doctor["gender"]) ?? "Male",
+        licenseNumber: String(data?.licenseNumber ?? payload.licenseNumber ?? ""),
+        qualification: String(data?.qualification ?? payload.qualification ?? ""),
+        experienceYears: Number(data?.experienceYears ?? payload.experienceYears ?? 0),
+        department: String(data?.department ?? payload.department ?? ""),
+        consultationFee: Number(data?.consultationFee ?? payload.consultationFee ?? 0),
+        availability: String(data?.availability ?? payload.availability ?? ""),
+        status: (data?.status as Doctor["status"]) ?? (payload.status as Doctor["status"]) ?? "Available",
+      };
+      return doctor;
+    } catch (e) {
+      return thunkAPI.rejectWithValue((e as Error)?.message ?? "Unable to create doctor");
+    }
+  }
+);
+
+export const deleteDoctor = createAsyncThunk<{ id: number }, { id: number }, { rejectValue: string }>(
+  "doctors/delete",
+  async ({ id }, thunkAPI) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API ?? "http://localhost:5000/api"}/doctors/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        return thunkAPI.rejectWithValue((body && body.message) || "Unable to delete doctor");
+      }
+      return { id };
+    } catch (e) {
+      return thunkAPI.rejectWithValue((e as Error)?.message ?? "Unable to delete doctor");
+    }
+  }
+);
+
+const doctorsSlice = createSlice({
+  name: "doctors",
+  initialState,
+  reducers: {
+    selectDoctor: (state, action: PayloadAction<number | null>) => {
+      state.selectedDoctorId = action.payload;
+    },
+    updateDoctorLocal: (state, action: PayloadAction<Doctor>) => {
+      state.list = state.list.map((d) => (d.id === action.payload.id ? action.payload : d));
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchDoctors.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchDoctors.fulfilled, (state, action: PayloadAction<Doctor[]>) => {
+        state.isLoading = false;
+        state.list = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchDoctors.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string | null;
+      })
+      .addCase(createDoctor.fulfilled, (state, action: PayloadAction<Doctor>) => {
+        state.list = [action.payload, ...state.list];
+      });
+      builder.addCase(deleteDoctor.fulfilled, (state, action) => {
+        state.list = state.list.filter((d) => d.id !== action.payload.id);
+      });
+  },
+});
+
+export const { selectDoctor } = doctorsSlice.actions;
+export default doctorsSlice.reducer;

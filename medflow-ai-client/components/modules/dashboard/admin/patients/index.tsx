@@ -10,8 +10,10 @@ import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { CreatePatient, type Patient, type PatientForm } from "./CreatePatient";
 import { CredentialsRevealModal, type OneTimeCredentials } from "./CredentialsModal";
 import { generateSecurePassword } from "@/lib/generatePassword";
-import { createPatient, getPatients } from "@/services/PatientsService";
 import { PatientListsTable } from "./PatientListsTable";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/store/store";
+import { fetchPatients, createPatient as createPatientThunk, deletePatient, updatePatientLocal } from "@/store/patientSlice";
 
 const emptyForm: PatientForm = {
   name: "",
@@ -30,7 +32,8 @@ const emptyForm: PatientForm = {
 };
 
 export function Patients() {
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const patients = useSelector((s: RootState) => s.patients.list);
 
   // Lives ONLY in memory, only between "just created" and "admin closed the modal"
   const [credentials, setCredentials] = useState<OneTimeCredentials | null>(null);
@@ -64,40 +67,7 @@ export function Patients() {
   }));
 
   useEffect(() => {
-    const loadPatients = async () => {
-      const response = await getPatients();
-
-      if (!response.success) {
-        toast.error(response.message || "Unable to load patients");
-        return;
-      }
-
-      const payload = response.data as unknown;
-      const patientList = Array.isArray(payload)
-        ? payload
-        : ((payload as { patients?: unknown[] })?.patients ?? []);
-
-      const mappedPatients: Patient[] = (patientList as Record<string, unknown>[]).map((patient) => ({
-        id: Number(patient.id ?? Date.now()),
-        name: String(patient.fullName ?? patient.name ?? ""),
-        email: String(patient.email ?? ""),
-        phone: String(patient.phone ?? ""),
-        gender: (patient.gender as Patient["gender"]) ?? "Male",
-        dateOfBirth: String(patient.dateOfBirth ?? ""),
-        bloodGroup: String(patient.bloodGroup ?? ""),
-        status: (patient.status as Patient["status"]) ?? "Active",
-        lastVisit: String(patient.lastVisit ?? ""),
-        doctor: String(patient.doctor ?? ""),
-        allergies: String(patient.allergies ?? ""),
-        emergencyContactName: String(patient.emergencyContactName ?? ""),
-        emergencyContactPhone: String(patient.emergencyContactPhone ?? ""),
-        notes: String(patient.notes ?? ""),
-      }));
-
-      setPatients(mappedPatients);
-    };
-
-    void loadPatients();
+    void dispatch(fetchPatients());
   }, []);
 
   const patientColumns = useMemo<ColumnDef<Patient>[]>(
@@ -129,9 +99,7 @@ export function Patients() {
 
     if (editingPatient) {
       // --- UPDATE (no password involved) ---
-      setPatients((current) =>
-        current.map((patient) => (patient.id === editingPatient.id ? { ...patient, ...form, id: patient.id } : patient)),
-      );
+      dispatch(updatePatientLocal({ ...editingPatient, ...form }));
       closeModal();
       return;
     }
@@ -140,7 +108,7 @@ export function Patients() {
     const password = generateSecurePassword(6);
 
     try {
-      const response = await createPatient({
+      const response = await dispatch(createPatientThunk({
         fullName: form.name,
         email: form.email,
         phone: form.phone,
@@ -149,40 +117,16 @@ export function Patients() {
         doctor: form.doctor,
         notes: form.notes,
         password,
-      });
+      } as Record<string, unknown>);
 
-      if (!response.success) {
-        throw new Error(response.message || "Patient creation failed.");
+      const resultAction = await response;
+      if (createPatientThunk.fulfilled.match(resultAction)) {
+        closeModal();
+        setCredentials({ email: form.email, password });
+      } else {
+        const err = (resultAction.payload as string) || "Patient creation failed.";
+        throw new Error(err);
       }
-
-      const createdPatient = (response.data as Record<string, unknown> | undefined)?.patient as
-        | (Record<string, unknown> & { id?: number; fullName?: string; email?: string; phone?: string; status?: Patient["status"]; lastVisit?: string; doctor?: string; notes?: string })
-        | undefined;
-
-      if (!createdPatient) {
-        throw new Error("Patient creation failed. No patient returned.");
-      }
-
-      const patientForTable: Patient = {
-        id: createdPatient?.id ?? Date.now(),
-        name: createdPatient?.fullName ?? form.name,
-        email: createdPatient?.email ?? form.email,
-        phone: createdPatient?.phone ?? form.phone,
-        gender: form.gender,
-        dateOfBirth: form.dateOfBirth,
-        bloodGroup: form.bloodGroup,
-        status: createdPatient?.status ?? form.status,
-        lastVisit: createdPatient?.lastVisit ?? form.lastVisit,
-        doctor: createdPatient?.doctor ?? form.doctor,
-        allergies: form.allergies,
-        emergencyContactName: form.emergencyContactName,
-        emergencyContactPhone: form.emergencyContactPhone,
-        notes: createdPatient?.notes ?? form.notes,
-      };
-
-      setPatients((current) => [patientForTable, ...current]);
-      closeModal();
-      setCredentials({ email: form.email, password });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unable to create patient";
       console.error(message);
@@ -192,7 +136,7 @@ export function Patients() {
 
   const handleDeleteConfirm = () => {
     if (!patientToDelete) return;
-    setPatients((current) => current.filter((patient) => patient.id !== patientToDelete.id));
+    void dispatch(deletePatient({ id: patientToDelete.id }));
     closeDeleteDialog();
   };
 

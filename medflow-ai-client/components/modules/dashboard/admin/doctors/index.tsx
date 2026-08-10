@@ -11,7 +11,9 @@ import { CreateDoctor, type Doctor, type DoctorForm } from "./CreateDoctor";
 import { DoctorCredentialsModal } from "./CredentialsModal";
 import { DoctorListsTable } from "./DoctorListsTable";
 import { generateSecurePassword } from "@/lib/generatePassword";
-import { createDoctor, getDoctors } from "@/services/DoctorsService";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/store/store";
+import { fetchDoctors, createDoctor as createDoctorThunk, deleteDoctor, updateDoctorLocal } from "@/store/doctorSlice";
 
 export type DoctorCredentials = {
   email: string;
@@ -34,7 +36,8 @@ const emptyForm: DoctorForm = {
 };
 
 export function Doctors() {
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const doctors = useSelector((s: RootState) => s.doctors.list);
 
   // Lives ONLY in memory, only between "just created" and "admin closed the modal"
   const [credentials, setCredentials] = useState<DoctorCredentials | null>(null);
@@ -67,40 +70,8 @@ export function Doctors() {
   }));
 
   useEffect(() => {
-    const loadDoctors = async () => {
-      const response = await getDoctors();
-
-      if (!response.success) {
-        toast.error(response.message || "Unable to load doctors");
-        return;
-      }
-
-      const payload = response.data as unknown;
-      const doctorList = Array.isArray(payload)
-        ? payload
-        : ((payload as { doctors?: unknown[] })?.doctors ?? []);
-
-      const mappedDoctors: Doctor[] = (doctorList as Record<string, unknown>[]).map((doctor) => ({
-        id: Number(doctor.id ?? Date.now()),
-        name: String(doctor.fullName ?? doctor.name ?? ""),
-        specialty: String(doctor.specialty ?? ""),
-        email: String(doctor.email ?? ""),
-        phone: String(doctor.phone ?? ""),
-        gender: (doctor.gender as Doctor["gender"]) ?? "Male",
-        licenseNumber: String(doctor.licenseNumber ?? ""),
-        qualification: String(doctor.qualification ?? ""),
-        experienceYears: Number(doctor.experienceYears ?? 0),
-        department: String(doctor.department ?? ""),
-        consultationFee: Number(doctor.consultationFee ?? 0),
-        availability: String(doctor.availability ?? ""),
-        status: (doctor.status as Doctor["status"]) ?? "Available",
-      }));
-
-      setDoctors(mappedDoctors);
-    };
-
-    void loadDoctors();
-  }, []);
+    void dispatch(fetchDoctors());
+  }, [dispatch]);
 
   const doctorColumns = useMemo<ColumnDef<Doctor>[]>(
     () => [
@@ -143,9 +114,7 @@ export function Doctors() {
 
     if (editingDoctor) {
       // --- UPDATE (no password involved) ---
-      // Replace with your real API call, e.g.:
-      // await fetch(`/api/doctors/${editingDoctor.id}`, { method: "PATCH", body: JSON.stringify(form) });
-      setDoctors((current) => current.map((doctor) => (doctor.id === editingDoctor.id ? { ...doctor, ...form, id: doctor.id } : doctor)));
+      dispatch(updateDoctorLocal({ ...editingDoctor, ...form }));
       closeModal();
       return;
     }
@@ -154,7 +123,7 @@ export function Doctors() {
     const password = generateSecurePassword(6);
 
     try {
-      const response = await createDoctor({
+      const response = await dispatch(createDoctorThunk({
         fullName: form.name,
         specialty: form.specialty,
         email: form.email,
@@ -168,39 +137,16 @@ export function Doctors() {
         availability: form.availability,
         status: form.status,
         password,
-      });
+      } as Record<string, unknown>);
 
-      if (!response.success) {
-        throw new Error(response.message || "Doctor creation failed.");
+      const resultAction = await response;
+      if (createDoctorThunk.fulfilled.match(resultAction)) {
+        closeModal();
+        setCredentials({ email: form.email, password });
+      } else {
+        const err = (resultAction.payload as string) || "Doctor creation failed.";
+        throw new Error(err);
       }
-
-      const createdDoctor = (response.data as Record<string, unknown> | undefined)?.doctor as
-        | (Record<string, unknown> & { id?: number; fullName?: string; specialty?: string; email?: string; phone?: string; gender?: Doctor["gender"]; licenseNumber?: string; qualification?: string; experienceYears?: number; department?: string; consultationFee?: number; availability?: string; status?: Doctor["status"] })
-        | undefined;
-
-      if (!createdDoctor) {
-        throw new Error("Doctor creation failed. No doctor returned.");
-      }
-
-      const doctorForTable: Doctor = {
-        id: createdDoctor?.id ?? Date.now(),
-        name: createdDoctor?.fullName ?? form.name,
-        specialty: createdDoctor?.specialty ?? form.specialty,
-        email: createdDoctor?.email ?? form.email,
-        phone: createdDoctor?.phone ?? form.phone,
-        gender: createdDoctor?.gender ?? form.gender,
-        licenseNumber: createdDoctor?.licenseNumber ?? form.licenseNumber,
-        qualification: createdDoctor?.qualification ?? form.qualification,
-        experienceYears: createdDoctor?.experienceYears ?? form.experienceYears,
-        department: createdDoctor?.department ?? form.department,
-        consultationFee: createdDoctor?.consultationFee ?? form.consultationFee,
-        availability: createdDoctor?.availability ?? form.availability,
-        status: createdDoctor?.status ?? form.status,
-      };
-
-      setDoctors((current) => [doctorForTable, ...current]);
-      closeModal();
-      setCredentials({ email: form.email, password });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unable to create doctor";
       console.error(message);
@@ -210,7 +156,7 @@ export function Doctors() {
 
   const handleDeleteConfirm = () => {
     if (!doctorToDelete) return;
-    setDoctors((current) => current.filter((doctor) => doctor.id !== doctorToDelete.id));
+    void dispatch(deleteDoctor({ id: doctorToDelete.id }));
     closeDeleteDialog();
   };
 
@@ -223,11 +169,7 @@ export function Doctors() {
             Add doctor
           </Button> 
           </div>
-        <DoctorListsTable
-          doctors={doctors}
-          columns={doctorColumns}
-          onRowClick={openEditModal}
-        />
+        <DoctorListsTable doctors={doctors} columns={doctorColumns} onRowClick={openEditModal} />
       </GlassCard>
 
       {isModalOpen ? (
