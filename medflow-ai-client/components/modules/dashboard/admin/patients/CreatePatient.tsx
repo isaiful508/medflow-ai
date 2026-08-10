@@ -5,25 +5,7 @@ import { useMemo, useState, type Dispatch, type FormEvent, type SetStateAction }
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-
-export type Patient = {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  gender: "Male" | "Female" | "Other";
-  dateOfBirth: string;
-  bloodGroup: string;
-  status: "Active" | "Pending" | "Critical";
-  lastVisit: string;
-  doctor: string;
-  allergies: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  notes: string;
-};
-
-export type PatientForm = Omit<Patient, "id">;
+import type { Patient, PatientForm } from "@/types";
 
 const STEPS = ["Personal", "Medical", "Visit & notes"] as const;
 

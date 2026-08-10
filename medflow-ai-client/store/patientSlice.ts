@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { getPatients, createPatient as svcCreatePatient } from "@/services/PatientsService";
-import { Patient } from "@/store/types";
+import type { Patient } from "@/types";
 
 export interface PatientsState {
   list: Patient[];

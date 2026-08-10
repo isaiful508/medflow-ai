@@ -5,33 +5,7 @@ import { useMemo, useState, type Dispatch, type FormEvent, type SetStateAction }
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-// import type { Doctor, DoctorForm } from "./types";
-
-
-
-export type Doctor = {
-  id: number;
-  name: string;
-  specialty: string;
-  email: string;
-  phone: string;
-  gender: "Male" | "Female" | "Other";
-  licenseNumber: string;
-  qualification: string;
-  experienceYears: number;
-  department: string;
-  consultationFee: number;
-  availability: string;
-  status: "Available" | "Busy" | "On leave";
-};
-
-export type DoctorForm = Omit<Doctor, "id">;
-
-// Only exists in memory between "doctor created" and "admin closed the modal"
-export type DoctorCredentials = {
-  email: string;
-  password: string;
-};
+import type { Doctor, DoctorForm } from "@/types";
 
 export const initialDoctorForm: DoctorForm = {
   name: "",
