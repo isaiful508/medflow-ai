@@ -22,26 +22,25 @@ export const fetchDoctors = createAsyncThunk<Doctor[], void, { rejectValue: stri
     try {
       const response = await getDoctors();
       if (!response.success) return thunkAPI.rejectWithValue(response.message || "Unable to load doctors");
-      const payload = response.data as unknown;
-      const doctorList = Array.isArray(payload) ? payload : ((payload as { doctors?: unknown[] })?.doctors ?? []);
-      const mapped: Doctor[] = (doctorList as Record<string, unknown>[]).map((doctor) => ({
-        id: Number(doctor.id ?? Date.now()),
-        name: String(doctor.fullName ?? doctor.name ?? ""),
-        specialty: String(doctor.specialty ?? ""),
-        email: String(doctor.email ?? ""),
-        phone: String(doctor.phone ?? ""),
-        gender: (doctor.gender as Doctor["gender"]) ?? "Male",
-        licenseNumber: String(doctor.licenseNumber ?? ""),
-        qualification: String(doctor.qualification ?? ""),
-        experienceYears: Number(doctor.experienceYears ?? 0),
-        department: String(doctor.department ?? ""),
-        consultationFee: Number(doctor.consultationFee ?? 0),
-        availability: String(doctor.availability ?? ""),
-        status: (doctor.status as Doctor["status"]) ?? "Available",
+      
+      const doctors = (response.data as any[]) || [];
+      return doctors.map((doctor) => ({
+        id: Number(doctor.doctorId || doctor.id || Date.now()),
+        name: String(doctor.fullName || doctor.name || ""),
+        specialty: String(doctor.specialty || ""),
+        email: String(doctor.email || ""),
+        phone: String(doctor.phone || ""),
+        gender: (doctor.gender as Doctor["gender"]) || "Male",
+        licenseNumber: String(doctor.licenseNumber || ""),
+        qualification: String(doctor.qualification || ""),
+        experienceYears: Number(doctor.experienceYears || 0),
+        department: String(doctor.department || ""),
+        consultationFee: Number(doctor.consultationFee || 0),
+        availability: String(doctor.availability || ""),
+        status: (doctor.status as Doctor["status"]) || "Available",
       }));
-      return mapped;
     } catch (e) {
-      return thunkAPI.rejectWithValue((e as Error)?.message ?? "Unable to load doctors");
+      return thunkAPI.rejectWithValue((e as Error)?.message || "Unable to load doctors");
     }
   }
 );
@@ -52,25 +51,25 @@ export const createDoctor = createAsyncThunk<Doctor, Record<string, unknown>, { 
     try {
       const res = await svcCreateDoctor(payload);
       if (!res.success) return thunkAPI.rejectWithValue(res.message || "Unable to create doctor");
-      const data = (res.data as Record<string, unknown> | undefined)?.doctor ?? (res.data as Record<string, unknown>);
-      const doctor: Doctor = {
-        id: Number(data?.id ?? Date.now()),
-        name: String(data?.fullName ?? payload.fullName ?? payload.name ?? ""),
-        specialty: String(data?.specialty ?? payload.specialty ?? ""),
-        email: String(data?.email ?? payload.email ?? ""),
-        phone: String(data?.phone ?? payload.phone ?? ""),
-        gender: (data?.gender as Doctor["gender"]) ?? (payload.gender as Doctor["gender"]) ?? "Male",
-        licenseNumber: String(data?.licenseNumber ?? payload.licenseNumber ?? ""),
-        qualification: String(data?.qualification ?? payload.qualification ?? ""),
-        experienceYears: Number(data?.experienceYears ?? payload.experienceYears ?? 0),
-        department: String(data?.department ?? payload.department ?? ""),
-        consultationFee: Number(data?.consultationFee ?? payload.consultationFee ?? 0),
-        availability: String(data?.availability ?? payload.availability ?? ""),
-        status: (data?.status as Doctor["status"]) ?? (payload.status as Doctor["status"]) ?? "Available",
+      
+      const data = res.data as any;
+      return {
+        id: Number(data?.doctorId || data?.id || Date.now()),
+        name: String(data?.fullName || payload.fullName || payload.name || ""),
+        specialty: String(data?.specialty || payload.specialty || ""),
+        email: String(data?.email || payload.email || ""),
+        phone: String(data?.phone || payload.phone || ""),
+        gender: (data?.gender as Doctor["gender"]) || (payload.gender as Doctor["gender"]) || "Male",
+        licenseNumber: String(data?.licenseNumber || payload.licenseNumber || ""),
+        qualification: String(data?.qualification || payload.qualification || ""),
+        experienceYears: Number(data?.experienceYears || payload.experienceYears || 0),
+        department: String(data?.department || payload.department || ""),
+        consultationFee: Number(data?.consultationFee || payload.consultationFee || 0),
+        availability: String(data?.availability || payload.availability || ""),
+        status: (data?.status as Doctor["status"]) || (payload.status as Doctor["status"]) || "Available",
       };
-      return doctor;
     } catch (e) {
-      return thunkAPI.rejectWithValue((e as Error)?.message ?? "Unable to create doctor");
+      return thunkAPI.rejectWithValue((e as Error)?.message || "Unable to create doctor");
     }
   }
 );

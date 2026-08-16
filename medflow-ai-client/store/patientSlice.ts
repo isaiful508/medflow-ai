@@ -22,27 +22,26 @@ export const fetchPatients = createAsyncThunk<Patient[], void, { rejectValue: st
     try {
       const response = await getPatients();
       if (!response.success) return thunkAPI.rejectWithValue(response.message || "Unable to load patients");
-      const payload = response.data as unknown;
-      const patientList = Array.isArray(payload) ? payload : ((payload as { patients?: unknown[] })?.patients ?? []);
-      const mapped: Patient[] = (patientList as Record<string, unknown>[]).map((patient) => ({
-        id: Number(patient.id ?? Date.now()),
-        name: String(patient.fullName ?? patient.name ?? ""),
-        email: String(patient.email ?? ""),
-        phone: String(patient.phone ?? ""),
-        gender: (patient.gender as Patient["gender"]) ?? "Male",
-        dateOfBirth: String(patient.dateOfBirth ?? ""),
-        bloodGroup: String(patient.bloodGroup ?? ""),
-        status: (patient.status as Patient["status"]) ?? "Active",
-        lastVisit: String(patient.lastVisit ?? ""),
-        doctor: String(patient.doctor ?? ""),
-        allergies: String(patient.allergies ?? ""),
-        emergencyContactName: String(patient.emergencyContactName ?? ""),
-        emergencyContactPhone: String(patient.emergencyContactPhone ?? ""),
-        notes: String(patient.notes ?? ""),
+      
+      const patients = (response.data as any[]) || [];
+      return patients.map((patient) => ({
+        id: Number(patient.patientId || patient.id || Date.now()),
+        name: String(patient.fullName || patient.name || ""),
+        email: String(patient.email || ""),
+        phone: String(patient.phone || ""),
+        gender: (patient.gender as Patient["gender"]) || "Male",
+        dateOfBirth: String(patient.dateOfBirth || ""),
+        bloodGroup: String(patient.bloodGroup || ""),
+        status: (patient.status as Patient["status"]) || "Active",
+        lastVisit: String(patient.lastVisit || ""),
+        doctor: String(patient.doctor || ""),
+        allergies: String(patient.allergies || ""),
+        emergencyContactName: String(patient.emergencyContactName || ""),
+        emergencyContactPhone: String(patient.emergencyContactPhone || ""),
+        notes: String(patient.notes || ""),
       }));
-      return mapped;
     } catch (e) {
-      return thunkAPI.rejectWithValue((e as Error)?.message ?? "Unable to load patients");
+      return thunkAPI.rejectWithValue((e as Error)?.message || "Unable to load patients");
     }
   }
 );
@@ -53,26 +52,26 @@ export const createPatient = createAsyncThunk<Patient, Record<string, unknown>, 
     try {
       const res = await svcCreatePatient(payload);
       if (!res.success) return thunkAPI.rejectWithValue(res.message || "Unable to create patient");
-      const data = (res.data as Record<string, unknown> | undefined)?.patient ?? (res.data as Record<string, unknown>);
-      const patient: Patient = {
-        id: Number(data?.id ?? Date.now()),
-        name: String(data?.fullName ?? payload.fullName ?? payload.name ?? ""),
-        email: String(data?.email ?? payload.email ?? ""),
-        phone: String(data?.phone ?? payload.phone ?? ""),
-        gender: (data?.gender as Patient["gender"]) ?? (payload.gender as Patient["gender"]) ?? "Male",
-        dateOfBirth: String(data?.dateOfBirth ?? payload.dateOfBirth ?? ""),
-        bloodGroup: String(data?.bloodGroup ?? payload.bloodGroup ?? ""),
-        status: (data?.status as Patient["status"]) ?? (payload.status as Patient["status"]) ?? "Active",
-        lastVisit: String(data?.lastVisit ?? payload.lastVisit ?? ""),
-        doctor: String(data?.doctor ?? payload.doctor ?? ""),
-        allergies: String(data?.allergies ?? payload.allergies ?? ""),
-        emergencyContactName: String(data?.emergencyContactName ?? payload.emergencyContactName ?? ""),
-        emergencyContactPhone: String(data?.emergencyContactPhone ?? payload.emergencyContactPhone ?? ""),
-        notes: String(data?.notes ?? payload.notes ?? ""),
+      
+      const data = res.data as any;
+      return {
+        id: Number(data?.patientId || data?.id || Date.now()),
+        name: String(data?.fullName || payload.fullName || payload.name || ""),
+        email: String(data?.email || payload.email || ""),
+        phone: String(data?.phone || payload.phone || ""),
+        gender: (data?.gender as Patient["gender"]) || (payload.gender as Patient["gender"]) || "Male",
+        dateOfBirth: String(data?.dateOfBirth || payload.dateOfBirth || ""),
+        bloodGroup: String(data?.bloodGroup || payload.bloodGroup || ""),
+        status: (data?.status as Patient["status"]) || (payload.status as Patient["status"]) || "Active",
+        lastVisit: String(data?.lastVisit || payload.lastVisit || ""),
+        doctor: String(data?.doctor || payload.doctor || ""),
+        allergies: String(data?.allergies || payload.allergies || ""),
+        emergencyContactName: String(data?.emergencyContactName || payload.emergencyContactName || ""),
+        emergencyContactPhone: String(data?.emergencyContactPhone || payload.emergencyContactPhone || ""),
+        notes: String(data?.notes || payload.notes || ""),
       };
-      return patient;
     } catch (e) {
-      return thunkAPI.rejectWithValue((e as Error)?.message ?? "Unable to create patient");
+      return thunkAPI.rejectWithValue((e as Error)?.message || "Unable to create patient");
     }
   }
 );
