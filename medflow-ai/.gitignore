@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Next.js (apps/web)
+apps/web/.next/
+apps/web/out/
+apps/web/.turbo/
+
+# Backend build output (apps/api)
+apps/api/dist/
+apps/api/build/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# pnpm
+node_modules/.pnpm
+
+# Testing / coverage
+coverage/

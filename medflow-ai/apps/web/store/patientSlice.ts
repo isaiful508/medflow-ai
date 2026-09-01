@@ -92,9 +92,9 @@ const patientsSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string | null;
       })
-      .addCase(createPatient.fulfilled, (state, action: PayloadAction<Patient>) => {
-        state.list = [action.payload, ...state.list];
-      })
+      // .addCase(createPatient.fulfilled, (state, action: PayloadAction<Patient>) => {
+      //   state.list = [action.payload, ...state.list];
+      // })
       .addCase(deletePatient.fulfilled, (state, action) => {
         state.list = state.list.filter((p) => p.id !== action.payload.id);
       });

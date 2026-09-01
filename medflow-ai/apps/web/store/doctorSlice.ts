@@ -91,9 +91,9 @@ const doctorsSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string | null;
       })
-      .addCase(createDoctor.fulfilled, (state, action: PayloadAction<Doctor>) => {
-        state.list = [action.payload, ...state.list];
-      });
+      // .addCase(createDoctor.fulfilled, (state, action: PayloadAction<Doctor>) => {
+      //   state.list = [action.payload, ...state.list];
+      // });
     builder.addCase(deleteDoctor.fulfilled, (state, action) => {
       state.list = state.list.filter((d) => d.id !== action.payload.id);
     });
